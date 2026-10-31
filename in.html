@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Builder-on // Open Supply Network</title>
+
+<style>
+:root{
+  --bg:#050507;
+  --panel:#0c1220;
+  --panel2:#101a2b;
+  --line:#1d3047;
+  --text:#d7e5f5;
+  --muted:#8295aa;
+  --cyan:#00aaff;
+  --green:#00ffcc;
+  --amber:#ffbf5f;
+  --red:#ff647c;
+  --radius:8px;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at 15% 0%,#0b1b2d 0,transparent 35%),
+    var(--bg);
+  color:var(--text);
+  font:14px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+
+button,input,select,textarea{font:inherit}
+
+button{
+  cursor:pointer;
+  border:1px solid var(--line);
+  background:#101c2c;
+  color:var(--text);
+  padding:9px 12px;
+  border-radius:5px;
+}
+
+button:hover{
+  border-color:var(--cyan);
+  color:var(--green);
+}
+
+button.primary{
+  background:#06283a;
+  border-color:#006b99;
+  color:var(--green);
+}
+
+button.danger{
+  border-color:#6c2637;
+  color:var(--red);
+}
+
+input,select,textarea{
+  width:100%;
+  background:#050a11;
+  color:var(--text);
+  border:1px solid var(--line);
+  border-radius:5px;
+  padding:10px;
+  outline:none;
+}
+
+input:focus,select:focus,textarea:focus{
+  border-color:var(--cyan);
+}
+
+textarea{min-height:100px;resize:vertical}
+
+a{color:var(--cyan);text-decoration:none}
+a:hover{color:var(--green);text-decoration:underline}
+
+.shell{
+  max-width:1200px;
+  margin:auto;
+  padding:20px;
+}
+
+header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:20px;
+  border-bottom:1px solid var(--line);
+  padding-bottom:18px;
+  margin-bottom:20px;
+}
+
+.logo{
+  color:var(--green);
+  font-size:clamp(20px,4vw,30px);
+  font-weight:900;
+  letter-spacing:-1px;
+}
+
+.logo span{color:var(--cyan)}
+
+.subtitle{
+  color:var(--muted);
+  font-size:12px;
+  margin-top:4px;
+}
+
+.status{
+  border:1px solid #125343;
+  color:var(--green);
+  padding:5px 9px;
+  border-radius:4px;
+  white-space:nowrap;
+  font-size:11px;
+}
+
+nav{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin-bottom:20px;
+}
+
+nav button.active{
+  background:#063049;
+  border-color:var(--cyan);
+  color:var(--green);
+}
+
+.layout{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 300px;
+  gap:18px;
+}
+
+.panel{
+  background:rgba(12,18,32,.94);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:16px;
+  min-width:0;
+}
+
+.panel + .panel{margin-top:15px}
+
+h1,h2,h3{
+  margin:0 0 12px;
+  font-weight:700;
+}
+
+h1{font-size:20px;color:var(--green)}
+h2{font-size:16px;color:var(--cyan)}
+h3{font-size:14px;color:var(--text)}
+
+p{margin:8px 0;color:var(--muted)}
+
+.small{font-size:11px;color:var(--muted)}
+.muted{color:var(--muted)}
+.green{color:var(--green)}
+.cyan{color:var(--cyan)}
+.amber{color:var(--amber)}
+
+.section-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-bottom:14px;
+}
+
+.toolbar{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.toolbar input{min-width:180px}
+
+.cards{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+  gap:12px;
+}
+
+.record{
+  border:1px solid var(--line);
+  background:#080e17;
+  border-radius:6px;
+  padding:13px;
+  min-width:0;
+}
+
+.record:hover{border-color:#285477}
+
+.record-top{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  align-items:flex-start;
+}
+
+.record h3{overflow-wrap:anywhere}
+
+.tag{
+  display:inline-block;
+  border:1px solid #25415a;
+  color:#8bb8d9;
+  border-radius:3px;
+  padding:2px 6px;
+  margin:3px 4px 3px 0;
+  font-size:10px;
+}
+
+.tag.open,.tag.active,.tag.accepted,.tag.declared{
+  border-color:#125343;
+  color:var(--green);
+}
+
+.tag.proposed,.tag.discussing,.tag.acknowledged{
+  border-color:#72552a;
+  color:var(--amber);
+}
+
+.tag.withdrawn,.tag.declined,.tag.suspended{
+  border-color:#6c2637;
+  color:var(--red);
+}
+
+.record-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:12px;
+}
+
+.record-actions button{
+  padding:6px 8px;
+  font-size:11px;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin-bottom:15px;
+}
+
+.stat{
+  background:#070c14;
+  border:1px solid var(--line);
+  border-radius:5px;
+  padding:12px;
+}
+
+.stat strong{
+  display:block;
+  font-size:22px;
+  color:var(--green);
+}
+
+.stat span{font-size:10px;color:var(--muted)}
+
+.form-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.field{display:flex;flex-direction:column;gap:5px}
+.field.full{grid-column:1/-1}
+.field label{font-size:11px;color:var(--muted)}
+
+.form-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:14px;
+}
+
+.notice{
+  border-left:3px solid var(--amber);
+  padding:10px 12px;
+  background:#17130c;
+  color:#c6ad7f;
+  font-size:11px;
+  margin:12px 0;
+}
+
+.notice.info{
+  border-color:var(--cyan);
+  background:#071521;
+  color:#8bb8d9;
+}
+
+.empty{
+  border:1px dashed var(--line);
+  padding:24px;
+  text-align:center;
+  color:var(--muted);
+  border-radius:5px;
+}
+
+pre{
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  background:#050a11;
+  border:1px solid var(--line);
+  padding:12px;
+  border-radius:5px;
+  color:#a9cce4;
+  font-size:11px;
+}
+
+.hidden{display:none!important}
+
+footer{
+  margin-top:24px;
+  padding-top:14px;
+  border-top:1px solid var(--line);
+  color:var(--muted);
+  font-size:10px;
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+@media(max-width:850px){
+  .layout{grid-template-columns:1fr}
+}
+
+@media(max-width:560px){
+  .shell{padding:12px}
+  header{align-items:flex-start;flex-direction:column}
+  .form-grid{grid-template-columns:1fr}
+  .field.full{grid-column:auto}
+  .stats{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+
+<body>
+<div class="shell">
+
+<header>
+  <div>
+    <div class="logo">BUILDER<span>-ON</span></div>
+    <div class="subtitle">OPEN SUPPLY NETWORK // DISCOVER · PROPOSE · COOPERATE</div>
+  </div>
+  <div class="status">LOCAL WORKSPACE // V0.1</div>
+</header>
+
+<nav id="navigation">
+  <button data-view="home" class="active">Overview</button>
+  <button data-view="projects">Projects</button>
+  <button data-view="suppliers">Suppliers</button>
+  <button data-view="providers">Providers</button>
+  <button data-view="participation">Participation</button>
+  <button data-view="relationships">Relationships</button>
+  <button data-view="export">PR / Export</button>
+</nav>
+
+<div class="layout">
+  <main id="main"></main>
+
+  <aside>
+    <section class="panel">
+      <h2>NETWORK STATUS</h2>
+      <div class="stats">
+        <div class="stat"><strong id="countProjects">0</strong><span>PROJECTS</span></div>
+        <div class="stat"><strong id="countSuppliers">0</strong><span>SUPPLIERS</span></div>
+        <div class="stat"><strong id="countProviders">0</strong><span>PROVIDERS</span></div>
+      </div>
+      <p class="small">This is a local workspace. Your changes are stored in this browser only.</p>
+    </section>
+
+    <section class="panel">
+      <h2>GOVERNING PRINCIPLE</h2>
+      <p class="green">Open participation without centralized permission.</p>
+      <p>Any registered supplier or provider may discover an open project and propose cooperation.</p>
+      <p>The project owner remains free to accept or decline.</p>
+    </section>
+
+    <section class="panel">
+      <h2>RESPONSIBILITY</h2>
+      <p>Builder-on provides discovery and contact channels.</p>
+      <p>Participants independently manage negotiations, contracts, payments, delivery, and disputes.</p>
+      <p class="small">A published record is not an endorsement, certification, or guarantee.</p>
+    </section>
+  </aside>
+</div>
+
+<footer>
+  <span>BUILDER-ON // OPEN COORDINATION</span>
+  <span>NO BACKEND · NO DATABASE · NO TRANSACTION LAYER</span>
+</footer>
+</div>
+
+<script>
+"use strict";
+
+/* =========================================================
+   BUILDER-ON LOCAL WORKSPACE
+   No dependencies. No network calls.
+   ========================================================= */
+
+const STORAGE_KEY = "builder_on_supply_network_v1";
+
+const today = () => new Date().toISOString().slice(0,10);
+
+const emptyData = () => ({
+  projects: [],
+  suppliers: [],
+  providers: [],
+  participation: [],
+  relationships: []
+});
+
+let data = loadData();
+let currentView = "home";
+let editing = null;
+let exportRecord = null;
+
+function loadData(){
+  try{
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if(saved){
+      const parsed = JSON.parse(saved);
+      return {
+        projects: parsed.projects || [],
+        suppliers: parsed.suppliers || [],
+        providers: parsed.providers || [],
+        participation: parsed.participation || [],
+        relationships: parsed.relationships || []
+      };
+    }
+  }catch(error){
+    console.warn("Could not load local data:",error);
+  }
+  return emptyData();
+}
+
+function saveData(){
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(data,null,2));
+  updateStats();
+}
+
+function updateStats(){
+  document.getElementById("countProjects").textContent = data.projects.length;
+  document.getElementById("countSuppliers").textContent = data.suppliers.length;
+  document.getElementById("countProviders").textContent = data.providers.length;
+}
+
+function escapeHTML(value){
+  return String(value ?? "").replace(/[&<>"']/g,char => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
+  }[char]));
+}
+
+function makeId(type){
+  const prefixes = {
+    projects:"BO-P-",
+    suppliers:"BO-S-",
+    providers:"BO-V-",
+    participation:"BO-I-",
+    relationships:"BO-R-"
+  };
+
+  const prefix = prefixes[type];
+  const ids = data[type].map(record => Number(record.id.split("-").pop()));
+  const next = Math.max(0,...ids)+1;
+  return prefix + String(next).padStart(4,"0");
+}
+
+function recordById(type,id){
+  return data[type].find(record => record.id === id);
+}
+
+function statusTag(status){
+  return `<span class="tag ${escapeHTML(status)}">${escapeHTML(status)}</span>`;
+}
+
+function contactLinks(contact){
+  if(!contact) return "";
+  const links = [];
+
+  if(contact.email){
+    const email = escapeHTML(contact.email);
+    links.push(`<a href="mailto:${email}">EMAIL</a>`);
+  }
+
+  if(contact.website){
+    const website = escapeHTML(contact.website);
+    links.push(`<a href="${website}" target="_blank" rel="noopener">WEBSITE</a>`);
+  }
+
+  return links.join(" · ");
+}
+
+function listTags(items){
+  return (items || []).map(item =>
+    `<span class="tag">${escapeHTML(item)}</span>`
+  ).join("");
+}
+
+function render(){
+  document.querySelectorAll("nav button").forEach(button => {
+    button.classList.toggle("active",button.dataset.view === currentView);
+  });
+
+  const main = document.getElementById("main");
+
+  if(currentView === "home") main.innerHTML = renderHome();
+  else if(currentView === "projects") main.innerHTML = renderDirectory("projects");
+  else if(currentView === "suppliers") main.innerHTML = renderDirectory("suppliers");
+  else if(currentView === "providers") main.innerHTML = renderDirectory("providers");
+  else if(currentView === "participation") main.innerHTML = renderDirectory("participation");
+  else if(currentView === "relationships") main.innerHTML = renderDirectory("relationships");
+  else if(currentView === "export") main.innerHTML = renderExport();
+
+  updateStats();
+}
+
+function renderHome(){
+  const openProjects = data.projects.filter(project => project.status === "open").length;
+
+  return `
+    <section class="panel">
+      <h1>OPEN SUPPLY NETWORK</h1>
+      <p>Builder-on connects independent participants around productive projects.</p>
+      <p>Discover projects, find suppliers and providers, and propose participation without waiting for an invitation.</p>
+
+      <div class="notice info">
+        This workspace is a local prototype. Published Builder-on records should live in the Git repository and be changed through pull requests.
+      </div>
+
+      <div class="stats">
+        <div class="stat"><strong>${openProjects}</strong><span>OPEN PROJECTS</span></div>
+        <div class="stat"><strong>${data.participation.length}</strong><span>PROPOSALS</span></div>
+        <div class="stat"><strong>${data.relationships.length}</strong><span>RELATIONSHIPS</span></div>
+      </div>
+
+      <div class="section-head">
+        <h2>OPEN PROJECTS</h2>
+        <button class="primary" onclick="navigate('projects')">Browse projects →</button>
+      </div>
+
+      ${renderProjectCards(data.projects.filter(project => project.status === "open").slice(0,4))}
+
+      <div class="form-actions">
+        <button onclick="navigate('suppliers')">Find suppliers</button>
+        <button onclick="navigate('providers')">Find providers</button>
+        <button onclick="navigate('participation')">View participation</button>
+      </div>
+    </section>
+  `;
+}
+
+function renderDirectory(type){
+  const titles = {
+    projects:"PROJECT DIRECTORY",
+    suppliers:"SUPPLIER DIRECTORY",
+    providers:"PROVIDER DIRECTORY",
+    participation:"OPEN PARTICIPATION",
+    relationships:"DECLARED RELATIONSHIPS"
+  };
+
+  const descriptions = {
+    projects:"Projects describe requirements and opportunities.",
+    suppliers:"Suppliers offer materials, products, and resources.",
+    providers:"Providers offer services, expertise, and execution.",
+    participation:"Participation proposals express interest. They are not contracts or obligations.",
+    relationships:"Relationships record associations declared by the relevant parties."
+  };
+
+  const records = data[type];
+
+  return `
+    <section class="panel">
+      <div class="section-head">
+        <div>
+          <h1>${titles[type]}</h1>
+          <p>${descriptions[type]}</p>
+        </div>
+        <button class="primary" onclick="showForm('${type}')">+ Add record</button>
+      </div>
+
+      <div class="toolbar">
+        <input id="searchBox" placeholder="Search records..." oninput="filterRecords('${type}')">
+        <select id="statusFilter" onchange="filterRecords('${type}')">
+          <option value="">All statuses</option>
+          ${statusOptions(type)}
+        </select>
+      </div>
+
+      <div id="recordList" class="cards" style="margin-top:14px">
+        ${renderRecords(type,records)}
+      </div>
+    </section>
+  `;
+}
+
+function statusOptions(type){
+  const statuses = {
+    projects:["draft","open","in-progress","completed","suspended","withdrawn"],
+    suppliers:["active","inactive","suspended","withdrawn"],
+    providers:["active","inactive","suspended","withdrawn"],
+    participation:["proposed","acknowledged","discussing","accepted","declined","withdrawn"],
+    relationships:["declared","contacted","agreed","in-progress","completed","withdrawn"]
+  };
+
+  return (statuses[type] || []).map(status =>
+    `<option value="${status}">${status}</option>`
+  ).join("");
+}
+
+function renderRecords(type,records){
+  if(!records.length){
+    return `<div class="empty" style="grid-column:1/-1">No records yet.<br><br>Add a record to this local workspace.</div>`;
+  }
+
+  if(type === "projects") return renderProjectCards(records);
+
+  return records.map(record => {
+    if(type === "suppliers" || type === "providers"){
+      return `
+        <article class="record">
+          <div class="record-top">
+            <h3>${escapeHTML(record.name)}</h3>
+            ${statusTag(record.status)}
+          </div>
+          <div class="small">${escapeHTML(record.id)} · ${escapeHTML(record.location || "Location not specified")}</div>
+          <p>${escapeHTML(record.description)}</p>
+          <div>${listTags(record.categories)}</div>
+          <p class="small">${contactLinks(record.contact)}</p>
+          <div class="record-actions">
+            <button onclick="proposeParticipation('${record.id}')">Propose participation</button>
+            <button onclick="editRecord('${type}','${record.id}')">Edit</button>
+            <button class="danger" onclick="deleteRecord('${type}','${record.id}')">Delete</button>
+          </div>
+        </article>
+      `;
+    }
+
+    if(type === "participation"){
+      const project = recordById("projects",record.project);
+      const participant = recordById(record.participant_type === "supplier" ? "suppliers" : "providers",record.participant);
+
+      return `
+        <article class="record">
+          <div class="record-top">
+            <h3>${escapeHTML(record.id)}</h3>
+            ${statusTag(record.status)}
+          </div>
+          <p><span class="cyan">PROJECT</span> ${escapeHTML(project?.name || record.project)}</p>
+          <p><span class="cyan">PARTICIPANT</span> ${escapeHTML(participant?.name || record.participant)}</p>
+          <p>${escapeHTML(record.proposal?.description || "")}</p>
+          <p class="small">Participant declaration: ${record.declarations?.participant ? "yes" : "no"}<br>
+          Project owner declaration: ${record.declarations?.project_owner ? "yes" : "no"}</p>
+          <div class="record-actions">
+            <button onclick="editRecord('participation','${record.id}')">Update</button>
+            <button class="danger" onclick="deleteRecord('participation','${record.id}')">Delete</button>
+          </div>
+        </article>
+      `;
+    }
+
+    if(type === "relationships"){
+      const project = recordById("projects",record.project);
+      const supplier = recordById("suppliers",record.supplier);
+      const provider = recordById("providers",record.provider);
+
+      return `
+        <article class="record">
+          <div class="record-top">
+            <h3>${escapeHTML(record.id)}</h3>
+            ${statusTag(record.status)}
+          </div>
+          <p><span class="cyan">PROJECT</span> ${escapeHTML(project?.name || record.project)}</p>
+          <p><span class="cyan">SUPPLIER</span> ${escapeHTML(supplier?.name || record.supplier)}</p>
+          <p><span class="cyan">PROVIDER</span> ${escapeHTML(provider?.name || record.provider)}</p>
+          <p>${escapeHTML(record.description || "")}</p>
+          <p class="small">Declared by: ${escapeHTML((record.declared_by || []).join(", "))}</p>
+          <div class="record-actions">
+            <button onclick="editRecord('relationships','${record.id}')">Update</button>
+            <button class="danger" onclick="deleteRecord('relationships','${record.id}')">Delete</button>
+          </div>
+        </article>
+      `;
+    }
+
+    return "";
+  }).join("");
+}
+
+function renderProjectCards(records){
+  if(!records.length){
+    return `<div class="empty" style="grid-column:1/-1">No projects found.</div>`;
+  }
+
+  return `<div class="cards" style="grid-column:1/-1">${records.map(project => `
+    <article class="record">
+      <div class="record-top">
+        <h3>${escapeHTML(project.name)}</h3>
+        ${statusTag(project.status)}
+      </div>
+      <div class="small">${escapeHTML(project.id)} · ${escapeHTML(project.location || "Location not specified")}</div>
+      <p>${escapeHTML(project.description)}</p>
+      <div>${listTags(project.category)}</div>
+      <p class="small">Requirements: ${(project.requirements || []).length}</p>
+      <p class="small">${contactLinks(project.contact)}</p>
+      <div class="record-actions">
+        ${project.status === "open" ? `<button onclick="showForm('participation','${project.id}')">Propose participation</button>` : ""}
+        <button onclick="viewProject('${project.id}')">Details</button>
+        <button onclick="editRecord('projects','${project.id}')">Edit</button>
+        <button class="danger" onclick="deleteRecord('projects','${project.id}')">Delete</button>
+      </div>
+    </article>
+  `).join("")}</div>`;
+}
+
+function filterRecords(type){
+  const query = (document.getElementById("searchBox")?.value || "").toLowerCase();
+  const status = document.getElementById("statusFilter")?.value || "";
+
+  const filtered = data[type].filter(record => {
+    const matchesStatus = !status || record.status === status;
+    const matchesQuery = JSON.stringify(record).toLowerCase().includes(query);
+    return matchesStatus && matchesQuery;
+  });
+
+  document.getElementById("recordList").innerHTML = renderRecords(type,filtered);
+}
+
+function navigate(view){
+  currentView = view;
+  editing = null;
+  render();
+}
+
+document.getElementById("navigation").addEventListener("click",event => {
+  const button = event.target.closest("button[data-view]");
+  if(button) navigate(button.dataset.view);
+});
+
+function viewProject(id){
+  const project = recordById("projects",id);
+  if(!project) return;
+
+  const main = document.getElementById("main");
+
+  main.innerHTML = `
+    <section class="panel">
+      <button onclick="navigate('projects')">← Back to projects</button>
+      <h1 style="margin-top:15px">${escapeHTML(project.name)}</h1>
+      <p class="small">${escapeHTML(project.id)} · ${escapeHTML(project.location || "")}</p>
+      ${statusTag(project.status)}
+      <p>${escapeHTML(project.description)}</p>
+      <h2>REQUIREMENTS</h2>
+      <ul>${(project.requirements || []).map(item => `<li>${escapeHTML(item)}</li>`).join("")}</ul>
+      <h2>CONTACT</h2>
+      <p>${contactLinks(project.contact)}</p>
+      <h2>PARTICIPATION</h2>
+      <p>Any registered supplier or provider may propose participation while this project is open.</p>
+      ${project.status === "open" ? `<button class="primary" onclick="showForm('participation','${project.id}')">Propose participation</button>` : ""}
+    </section>
+  `;
+}
+
+function showForm(type,preselectedProject=""){
+  editing = null;
+  currentView = type;
+  render();
+
+  const main = document.getElementById("main");
+  main.innerHTML = `
+    <section class="panel">
+      <div class="section-head">
+        <h1>${type === "participation" ? "PROPOSE PARTICIPATION" : "ADD " + type.toUpperCase()}</h1>
+        <button onclick="navigate('${type}')">Cancel</button>
+      </div>
+      ${formHTML(type,null,preselectedProject)}
+    </section>
+  `;
+}
+
+function editRecord(type,id){
+  const record = recordById(type,id);
+  if(!record) return;
+
+  editing = {type,id};
+  currentView = type;
+  render();
+
+  document.getElementById("main").innerHTML = `
+    <section class="panel">
+      <div class="section-head">
+        <h1>EDIT ${type.toUpperCase()}</h1>
+        <button onclick="navigate('${type}')">Cancel</button>
+      </div>
+      ${formHTML(type,record)}
+    </section>
+  `;
+}
+
+function field(label,name,value="",options=null,full=false){
+  const safeName = escapeHTML(name);
+  const safeValue = escapeHTML(value);
+
+  let control;
+
+  if(options){
+    control = `<select name="${safeName}" required>
+      <option value="">Select...</option>
+      ${options.map(option => {
+        const val = typeof option === "string" ? option : option.value;
+        const text = typeof option === "string" ? option : option.label;
+        return `<option value="${escapeHTML(val)}" ${val === value ? "selected" : ""}>${escapeHTML(text)}</option>`;
+      }).join("")}
+    </select>`;
+  }else{
+    control = `<input name="${safeName}" value="${safeValue}" required>`;
+  }
+
+  return `<div class="field ${full ? "full" : ""}"><label>${label}</label>${control}</div>`;
+}
+
+function textareaField(label,name,value="",full=true){
+  return `<div class="field ${full ? "full" : ""}">
+    <label>${label}</label>
+    <textarea name="${escapeHTML(name)}">${escapeHTML(value)}</textarea>
+  </div>`;
+}
+
+function formHTML(type,record=null,preselectedProject=""){
+  const isEdit = !!record;
+
+  if(type === "projects"){
+    return `
+      <form onsubmit="submitRecord(event,'projects')">
+        <div class="form-grid">
+          ${field("Project name","name",record?.name)}
+          ${field("Status","status",record?.status || "open",["draft","open","in-progress","completed","suspended","withdrawn"])}
+          ${field("Location","location",record?.location)}
+          ${field("Categories (comma separated)","category",(record?.category || []).join(", "))}
+          ${textareaField("Description","description",record?.description)}
+          ${textareaField("Requirements (one per line)","requirements",(record?.requirements || []).join("\n"))}
+          ${field("Contact email","email",record?.contact?.email || "")}
+          ${field("Website","website",record?.contact?.website || "")}
+        </div>
+        <div class="form-actions"><button class="primary" type="submit">${isEdit ? "Save changes" : "Create project"}</button></div>
+      </form>
+    `;
+  }
+
+  if(type === "suppliers" || type === "providers"){
+    return `
+      <form onsubmit="submitRecord(event,'${type}')">
+        <div class="form-grid">
+          ${field("Name","name",record?.name)}
+          ${field("Status","status",record?.status || "active",["active","inactive","suspended","withdrawn"])}
+          ${field("Location","location",record?.location)}
+          ${field("Categories (comma separated)","categories",(record?.categories || []).join(", "))}
+          ${textareaField("Description","description",record?.description)}
+          ${textareaField("Capabilities (one per line)","capabilities",(record?.capabilities || []).join("\n"))}
+          ${field("Contact email","email",record?.contact?.email || "")}
+          ${field("Website","website",record?.contact?.website || "")}
+        </div>
+        <div class="form-actions"><button class="primary" type="submit">${isEdit ? "Save changes" : "Create record"}</button></div>
+      </form>
+    `;
+  }
+
+  if(type === "participation"){
+    const openProjects = data.projects.filter(project => project.status === "open");
+    const participants = [
+      ...data.suppliers.filter(item => item.status === "active").map(item => ({value:item.id,label:"Supplier · "+item.name})),
+      ...data.providers.filter(item => item.status === "active").map(item => ({value:item.id,label:"Provider · "+item.name}))
+    ];
+
+    return `
+      <div class="notice">
+        A proposal expresses interest only. It does not create an obligation, exclusivity, endorsement, or contract. Do not claim the project owner's acceptance.
+      </div>
+      <form onsubmit="submitRecord(event,'participation')">
+        <div class="form-grid">
+          ${field("Open project","project",record?.project || preselectedProject,openProjects.map(item => ({value:item.id,label:item.id+" · "+item.name})),true)}
+          ${field("Supplier or provider","participant",record?.participant,participants,true)}
+          ${field("Status","status",record?.status || "proposed",["proposed","acknowledged","discussing","accepted","declined","withdrawn"],true)}
+          ${textareaField("Proposed contribution","proposal_description",record?.proposal?.description)}
+          ${field("Proposal contact email","proposal_email",record?.proposal?.contact_email || "")}
+          ${field("Proposal website","proposal_website",record?.proposal?.website || "")}
+          <div class="field full">
+            <label><input type="checkbox" name="participant_declaration" style="width:auto" ${record?.declarations?.participant ? "checked" : ""}>
+            I am authorized to submit this proposal for the participant.</label>
+          </div>
+          <div class="field full">
+            <label><input type="checkbox" name="owner_declaration" style="width:auto" ${record?.declarations?.project_owner ? "checked" : ""}>
+            The project owner has independently confirmed acceptance. Leave unchecked unless this is true.</label>
+          </div>
+        </div>
+        <div class="form-actions"><button class="primary" type="submit">${isEdit ? "Save changes" : "Submit local proposal"}</button></div>
+      </form>
+    `;
+  }
+
+  if(type === "relationships"){
+    const projects = data.projects;
+    const suppliers = data.suppliers;
+    const providers = data.providers;
+
+    return `
+      <div class="notice">
+        A relationship must not be published as mutually declared unless the relevant parties have independently confirmed it. This local form does not verify those declarations.
+      </div>
+      <form onsubmit="submitRecord(event,'relationships')">
+        <div class="form-grid">
+          ${field("Project","project",record?.project,projects.map(item => ({value:item.id,label:item.id+" · "+item.name})),true)}
+          ${field("Supplier","supplier",record?.supplier,suppliers.map(item => ({value:item.id,label:item.id+" · "+item.name})),true)}
+          ${field("Provider","provider",record?.provider,providers.map(item => ({value:item.id,label:item.id+" · "+item.name})),true)}
+          ${field("Status","status",record?.status || "declared",["declared","contacted","agreed","in-progress","completed","withdrawn"],true)}
+          ${field("Declared by (IDs, comma separated)","declared_by",(record?.declared_by || []).join(", "),null,true)}
+          ${textareaField("Description","description",record?.description)}
+        </div>
+        <div class="form-actions"><button class="primary" type="submit">${isEdit ? "Save changes" : "Create local relationship"}</button></div>
+      </form>
+    `;
+  }
+
+  return `<p>Unknown record type.</p>`;
+}
+
+function splitList(value){
+  return String(value || "").split(",").map(item => item.trim()).filter(Boolean);
+}
+
+function splitLines(value){
+  return String(value || "").split("\n").map(item => item.trim()).filter(Boolean);
+}
+
+function submitRecord(event,type){
+  event.preventDefault();
+
+  const form = event.target;
+  const formData = new FormData(form);
+  const get = name => String(formData.get(name) || "").trim();
+
+  const isEdit = editing && editing.type === type;
+  const existing = isEdit ? recordById(type,editing.id) : null;
+  const id = existing?.id || makeId(type);
+
+  let record = {
+    id,
+    type:type === "participation" ? "participation" : type.slice(0,-1),
+    created:existing?.created || today(),
+    updated:today()
+  };
+
+  if(type === "projects"){
+    record = {
+      ...record,
+      name:get("name"),
+      description:get("description"),
+      status:get("status"),
+      category:splitList(get("category")),
+      location:get("location"),
+      contact:{email:get("email"),website:get("website")},
+      requirements:splitLines(get("requirements"))
+    };
+  }
+
+  if(type === "suppliers" || type === "providers"){
+    record = {
+      ...record,
+      name:get("name"),
+      description:get("description"),
+      status:get("status"),
+      categories:splitList(get("categories")),
+      location:get("location"),
+      contact:{email:get("email"),website:get("website")},
+      capabilities:splitLines(get("capabilities"))
+    };
+  }
+
+  if(type === "participation"){
+    const participantId = get("participant");
+    const participantType = participantId.startsWith("BO-S-") ? "supplier" : "provider";
+    const project = recordById("projects",get("project"));
+    const participant = recordById(participantType === "supplier" ? "suppliers" : "providers",participantId);
+
+    if(!project || project.status !== "open"){
+      alert("Participation proposals require an existing open project.");
+      return;
+    }
+
+    if(!participant || participant.status !== "active"){
+      alert("Select an existing active supplier or provider.");
+      return;
+    }
+
+    const status = get("status");
+    const ownerDeclaration = formData.has("owner_declaration");
+    const participantDeclaration = formData.has("participant_declaration");
+
+    if(status === "accepted" && !(ownerDeclaration && participantDeclaration)){
+      alert("Accepted participation requires declarations from both parties.");
+      return;
+    }
+
+    record = {
+      ...record,
+      project:project.id,
+      participant:participant.id,
+      participant_type:participantType,
+      status,
+      proposal:{
+        description:get("proposal_description"),
+        contact_email:get("proposal_email"),
+        website:get("proposal_website")
+      },
+      declarations:{
+        participant:participantDeclaration,
+        project_owner:ownerDeclaration
+      }
+    };
+  }
+
+  if(type === "relationships"){
+    const project = recordById("projects",get("project"));
+    const supplier = recordById("suppliers",get("supplier"));
+    const provider = recordById("providers",get("provider"));
+    const declaredBy = splitList(get("declared_by"));
+
+    if(!project || !supplier || !provider){
+      alert("Select an existing project, supplier, and provider.");
+      return;
+    }
+
+    if(["agreed","in-progress","completed"].includes(get("status")) &&
+       !(declaredBy.includes(supplier.id) && declaredBy.includes(provider.id))){
+      alert("This status requires both supplier and provider to be listed as declarants.");
+      return;
+    }
+
+    record = {
+      ...record,
+      project:project.id,
+      supplier:supplier.id,
+      provider:provider.id,
+      status:get("status"),
+      declared_by:declaredBy,
+      description:get("description")
+    };
+  }
+
+  if(existing){
+    const index = data[type].findIndex(item => item.id === existing.id);
+    data[type][index] = record;
+  }else{
+    data[type].push(record);
+  }
+
+  saveData();
+  editing = null;
+  navigate(type);
+}
+
+function proposeParticipation(participantId){
+  const participant = data.suppliers.find(item => item.id === participantId)
+    || data.providers.find(item => item.id === participantId);
+
+  if(!participant) return;
+
+  const openProjects = data.projects.filter(project => project.status === "open");
+
+  if(!openProjects.length){
+    alert("There are no open projects to propose participation in.");
+    return;
+  }
+
+  showForm("participation");
+}
+
+function deleteRecord(type,id){
+  const record = recordById(type,id);
+  if(!record) return;
+
+  if(!confirm(`Delete ${record.id} from this local workspace?`)) return;
+
+  data[type] = data[type].filter(item => item.id !== id);
+  saveData();
+  render();
+}
+
+function renderExport(){
+  return `
+    <section class="panel">
+      <h1>PR / EXPORT</h1>
+      <p>Prepare a JSON record and pull-request description for the Builder-on repository.</p>
+
+      <div class="notice info">
+        This page does not connect to GitHub or publish changes. Export a record, then submit it through a pull request in the repository.
+      </div>
+
+      <div class="form-grid">
+        ${field("Record directory","export_type","projects",[
+          {value:"projects",label:"Projects"},
+          {value:"suppliers",label:"Suppliers"},
+          {value:"providers",label:"Providers"},
+          {value:"participation",label:"Participation"},
+          {value:"relationships",label:"Relationships"}
+        ],true)}
+        <div class="field full">
+          <label>Record</label>
+          <select id="export_record" onchange="prepareExport()"></select>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="primary" onclick="downloadExport()">Download JSON</button>
+        <button onclick="copyPR()">Copy PR description</button>
+        <button onclick="openGitHubPR()">Open GitHub PR page</button>
+        <button onclick="downloadBackup()">Backup all local data</button>
+      </div>
+
+      <h2 style="margin-top:20px">JSON PREVIEW</h2>
+      <pre id="jsonPreview">Select a record to preview.</pre>
+
+      <h2>PR DESCRIPTION</h2>
+      <pre id="prPreview">Select a record to generate a PR description.</pre>
+
+      <div class="form-actions">
+        <button onclick="document.getElementById('importFile').click()">Import JSON backup</button>
+        <input id="importFile" type="file" accept=".json,application/json" class="hidden" onchange="importBackup(event)">
+      </div>
+    </section>
+  `;
+}
+
+document.addEventListener("change",event => {
+  if(event.target.id === "export_type"){
+    populateExportRecords();
+  }
+});
+
+function populateExportRecords(){
+  const type = document.getElementById("export_type")?.value || "projects";
+  const select = document.getElementById("export_record");
+  if(!select) return;
+
+  select.innerHTML = data[type].map(record =>
+    `<option value="${escapeHTML(record.id)}">${escapeHTML(record.id)} · ${escapeHTML(record.name || record.id)}</option>`
+  ).join("");
+
+  prepareExport();
+}
+
+function prepareExport(){
+  const type = document.getElementById("export_type")?.value || "projects";
+  const id = document.getElementById("export_record")?.value;
+  const record = recordById(type,id);
+
+  exportRecord = record ? {type,record} : null;
+
+  document.getElementById("jsonPreview").textContent = record
+    ? JSON.stringify(record,null,2)
+    : "No record selected.";
+
+  if(record){
+    const label = type.slice(0,-1).toUpperCase();
+    document.getElementById("prPreview").textContent =
+`[${label}] ${record.id}
+
+## Summary
+Add or update ${record.id} in the ${type} directory.
+
+## Checklist
+- [ ] Information is accurate to the best of my knowledge.
+- [ ] I am authorized to submit this information.
+- [ ] Public contact details are intentionally provided.
+- [ ] No confidential information is included.
+- [ ] I understand Builder-on's responsibility boundaries.
+
+## Record
+\`\`\`json
+${JSON.stringify(record,null,2)}
+\`\`\``;
+  }else{
+    document.getElementById("prPreview").textContent = "No record selected.";
+  }
+}
+
+function downloadText(filename,textContent,mime="application/json"){
+  const blob = new Blob([textContent],{type:mime});
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+  anchor.click();
+  URL.revokeObjectURL(url);
+}
+
+function downloadExport(){
+  if(!exportRecord){
+    alert("Select a record first.");
+    return;
+  }
+
+  const {type,record} = exportRecord;
+  downloadText(`${record.id}.json`,JSON.stringify(record,null,2));
+}
+
+function copyPR(){
+  const textContent = document.getElementById("prPreview")?.textContent || "";
+  if(!textContent || textContent.startsWith("No record")){
+    alert("Select a record first.");
+    return;
+  }
+
+  navigator.clipboard?.writeText(textContent)
+    .then(() => alert("PR description copied."))
+    .catch(() => alert("Clipboard access was unavailable. Select and copy the preview manually."));
+}
+
+function openGitHubPR(){
+  const repo = prompt("Enter your Builder-on GitHub repository URL:","https://github.com/your-user/builder-on");
+  if(!repo) return;
+
+  const clean = repo.replace(/\/+$/,"");
+  window.open(clean + "/compare","_blank","noopener");
+}
+
+function downloadBackup(){
+  downloadText("builder-on-backup.json",JSON.stringify(data,null,2));
+}
+
+function importBackup(event){
+  const file = event.target.files?.[0];
+  if(!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    try{
+      const parsed = JSON.parse(reader.result);
+
+      for(const type of ["projects","suppliers","providers","participation","relationships"]){
+        if(!Array.isArray(parsed[type])) throw new Error(`Missing or invalid ${type} directory.`);
+      }
+
+      if(!confirm("Import will replace all local Builder-on records. Continue?")) return;
+
+      data = parsed;
+      saveData();
+      navigate("home");
+      alert("Backup imported.");
+    }catch(error){
+      alert("Import failed: " + error.message);
+    }
+  };
+
+  reader.readAsText(file);
+}
+
+/* =========================================================
+   OPTIONAL DEMO DATA
+   ========================================================= */
+
+function loadDemoData(){
+  if(data.projects.length || data.suppliers.length || data.providers.length){
+    if(!confirm("Add demo records to the existing local workspace?")) return;
+  }
+
+  if(!recordById("projects","BO-P-0001")){
+    data.projects.push({
+      id:"BO-P-0001",
+      type:"project",
+      name:"Beer Cooler",
+      description:"Design and assemble a compact beer cooling and dispensing unit.",
+      status:"open",
+      category:["manufacturing","cooling"],
+      location:"Netherlands",
+      contact:{email:"project@example.org",website:"https://example.org"},
+      requirements:[
+        "Insulated enclosure",
+        "Cooling system",
+        "Beer dispensing components",
+        "Temperature control",
+        "Assembly and testing"
+      ],
+      created:today(),
+      updated:today()
+    });
+  }
+
+  if(!recordById("suppliers","BO-S-0001")){
+    data.suppliers.push({
+      id:"BO-S-0001",
+      type:"supplier",
+      name:"Example refrigeration supplier",
+      description:"Illustrative supplier of refrigeration equipment.",
+      status:"active",
+      categories:["cooling","components"],
+      location:"Netherlands",
+      contact:{email:"sales@example.org",website:"https://example.org"},
+      capabilities:["Cooling units","Refrigeration components"],
+      created:today(),
+      updated:today()
+    });
+  }
+
+  if(!recordById("providers","BO-V-0001")){
+    data.providers.push({
+      id:"BO-V-0001",
+      type:"provider",
+      name:"Example refrigeration technician",
+      description:"Illustrative installation and maintenance services.",
+      status:"active",
+      categories:["refrigeration","installation"],
+      location:"Netherlands",
+      contact:{email:"service@example.org",website:"https://example.org"},
+      capabilities:["Cooling system installation","System testing","Maintenance"],
+      created:today(),
+      updated:today()
+    });
+  }
+
+  saveData();
+  render();
+}
+
+/* First-run prompt */
+if(data.projects.length === 0 && data.suppliers.length === 0 && data.providers.length === 0){
+  setTimeout(() => {
+    if(confirm("Load illustrative Beer Cooler demo records?")){
+      loadDemoData();
+    }
+  },250);
+}
+
+render();
+</script>
+</body>
+</html>
