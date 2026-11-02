@@ -3,488 +3,1350 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#050507">
-<title>ENTROPY ENGINE // FRAMEWORK v0.5</title>
+<title>Builder-on // Open Supply Network</title>
+
 <style>
 :root{
   --bg:#050507;
   --panel:#0c1220;
-  --panel2:#101827;
-  --line:#233246;
-  --text:#d8e3ee;
-  --muted:#8192a7;
-  --green:#71f7a8;
-  --cyan:#61d9ff;
-  --amber:#ffd479;
-  --red:#ff7777;
-  --shadow:0 12px 32px rgba(0,0,0,.25);
+  --panel2:#101a2b;
+  --line:#1d3047;
+  --text:#d7e5f5;
+  --muted:#8295aa;
+  --cyan:#00aaff;
+  --green:#00ffcc;
+  --amber:#ffbf5f;
+  --red:#ff647c;
+  --radius:8px;
 }
+
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
+
 body{
-  margin:0;background:var(--bg);color:var(--text);
-  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
-  line-height:1.6;font-size:14px;
+  margin:0;
+  background:
+    radial-gradient(circle at 15% 0%,#0b1b2d 0,transparent 35%),
+    var(--bg);
+  color:var(--text);
+  font:14px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
 }
-button,input{font:inherit}
-button{cursor:pointer}
-a{color:var(--cyan)}
-.shell{max-width:1180px;margin:0 auto;padding:18px}
-.topbar,.panel,.pillar,.rule,.step,.metric,.callout{
-  border:1px solid var(--line);background:var(--panel);border-radius:10px;
+
+button,input,select,textarea{font:inherit}
+
+button{
+  cursor:pointer;
+  border:1px solid var(--line);
+  background:#101c2c;
+  color:var(--text);
+  padding:9px 12px;
+  border-radius:5px;
 }
-.topbar{padding:18px;margin-bottom:14px;box-shadow:var(--shadow)}
-.brandline{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.brand{color:var(--green);font-weight:900;letter-spacing:.09em}
-.status{color:var(--green);font-size:11px;border:1px solid #24533a;border-radius:4px;padding:4px 8px}
-h1{font-size:clamp(24px,4vw,42px);line-height:1.12;letter-spacing:-.04em;margin:18px 0 8px;color:#f3f8ff}
-h2{font-size:20px;margin:0 0 12px;color:var(--green)}
-h3{font-size:15px;margin:0 0 7px;color:var(--cyan)}
-p{margin:7px 0 12px}
-.subtitle{max-width:850px;color:var(--muted);font-size:14px}
-.meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
-.tag{font-size:11px;color:var(--cyan);border:1px solid #25495a;border-radius:4px;padding:4px 7px}
-.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
-.btn{background:#101d2b;border:1px solid #2b455d;color:var(--text);border-radius:6px;padding:9px 12px}
-.btn:hover,.btn:focus-visible{border-color:var(--green);outline:none}
-.btn.primary{color:var(--green);border-color:#286243}
-.layout{display:grid;grid-template-columns:235px minmax(0,1fr);gap:14px;align-items:start}
-.sidebar{position:sticky;top:12px;padding:12px}
-.sidebar-title{font-size:11px;color:var(--muted);letter-spacing:.12em;margin:2px 8px 8px}
-.nav{display:flex;flex-direction:column;gap:4px}
-.nav a{color:var(--text);text-decoration:none;padding:8px;border-radius:5px;font-size:12px;border:1px solid transparent}
-.nav a:hover{background:#111d2c;border-color:var(--line);color:var(--green)}
-.content{min-width:0}
-.panel{padding:18px;margin-bottom:14px;scroll-margin-top:12px}
-.kicker{color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
-.lead{font-size:16px;color:#edf6ff}
-.callout{padding:15px;background:#0b1718;border-color:#245340;margin:12px 0}
-.callout strong{color:var(--green)}
-.pillars{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.pillar{padding:14px;background:linear-gradient(145deg,#0c1420,#090d14)}
-.pillar.wide{grid-column:1/-1}
-.pillar-head{display:flex;gap:10px;align-items:flex-start;margin-bottom:7px}
-.num{flex:0 0 34px;height:34px;display:grid;place-items:center;border:1px solid #286243;color:var(--green);border-radius:6px;font-weight:bold}
-.pillar h3{margin:2px 0 3px}
-.pillar small{color:var(--muted)}
-.question{color:var(--amber);font-size:12px;margin-top:10px}
-.controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.control{background:#090f18;border:1px solid var(--line);padding:10px;border-radius:6px}
-.control b{display:block;color:var(--cyan);font-size:12px;margin-bottom:4px}
-.rules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
-.rule{padding:13px}
-.rule .n{font-size:11px;color:var(--green);margin-bottom:5px}
-.rule p{margin:0;color:#bdcad8}
-.flow{display:flex;flex-direction:column;align-items:stretch;gap:6px;max-width:720px;margin:0 auto}
-.step{padding:12px;display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;align-items:start}
-.step .n{border:1px solid #286243;color:var(--green);border-radius:5px;width:30px;height:30px;display:grid;place-items:center}
-.step p{margin:3px 0 0;color:var(--muted)}
-.down{text-align:center;color:var(--green);line-height:1;font-size:18px}
-.formula{overflow-wrap:anywhere;padding:13px;border:1px dashed #31516b;background:#08111c;border-radius:6px;color:var(--cyan);text-align:center;font-size:16px}
-.small{font-size:12px;color:var(--muted)}
-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:12px}
-th,td{padding:10px;border:1px solid var(--line);text-align:left;vertical-align:top}
-th{background:#111b29;color:var(--green);font-weight:700}
-td{color:#c4d0dd}
-tbody tr:nth-child(even){background:#080d14}
-ul{padding-left:20px}
-li{margin:5px 0}
-.checklist{display:grid;gap:8px}
-.checkrow{display:flex;gap:9px;align-items:flex-start;padding:10px;background:#080e16;border:1px solid var(--line);border-radius:6px}
-.checkrow input{accent-color:var(--green);margin-top:4px;flex:0 0 auto}
-.checkrow span{flex:1}
-.result{padding:12px;margin-top:10px;border:1px solid var(--line);border-radius:6px;background:#080e16;min-height:48px}
-.result.good{border-color:#286243;color:var(--green)}
-.result.warn{border-color:#735d2c;color:var(--amber)}
-.footer{color:var(--muted);font-size:11px;text-align:center;padding:18px 0 28px}
-hr{border:0;border-top:1px solid var(--line);margin:15px 0}
-@media(max-width:800px){
- .layout{grid-template-columns:1fr}
- .sidebar{position:static}
- .nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
- .pillars,.rules,.controls{grid-template-columns:1fr}
- .pillar.wide{grid-column:auto}
- .shell{padding:10px}
- .panel{padding:14px}
+
+button:hover{
+  border-color:var(--cyan);
+  color:var(--green);
 }
-@media print{
- :root{--bg:#fff;--panel:#fff;--panel2:#fff;--line:#bbb;--text:#111;--muted:#444;--green:#126b37;--cyan:#075a79;--amber:#855d00}
- body{background:#fff;color:#111;font-size:10pt}
- .shell{max-width:none;padding:0}
- .layout{display:block}
- .sidebar,.toolbar,.interactive-only{display:none!important}
- .topbar,.panel,.pillar,.rule,.step,.metric,.callout{box-shadow:none;background:#fff;break-inside:avoid}
- .panel{padding:12px;margin-bottom:9px}
- h1{color:#111;font-size:25pt}
- h2,h3,.brand,.num,.question{color:#126b37}
- .subtitle,.small,.pillar small,.step p,.rule p{color:#333}
- .pillars{grid-template-columns:repeat(2,minmax(0,1fr))}
- .pillar.wide{grid-column:1/-1}
- a{color:#111;text-decoration:none}
- .callout{border-color:#888}
+
+button.primary{
+  background:#06283a;
+  border-color:#006b99;
+  color:var(--green);
+}
+
+button.danger{
+  border-color:#6c2637;
+  color:var(--red);
+}
+
+input,select,textarea{
+  width:100%;
+  background:#050a11;
+  color:var(--text);
+  border:1px solid var(--line);
+  border-radius:5px;
+  padding:10px;
+  outline:none;
+}
+
+input:focus,select:focus,textarea:focus{
+  border-color:var(--cyan);
+}
+
+textarea{min-height:100px;resize:vertical}
+
+a{color:var(--cyan);text-decoration:none}
+a:hover{color:var(--green);text-decoration:underline}
+
+.shell{
+  max-width:1200px;
+  margin:auto;
+  padding:20px;
+}
+
+header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:20px;
+  border-bottom:1px solid var(--line);
+  padding-bottom:18px;
+  margin-bottom:20px;
+}
+
+.logo{
+  color:var(--green);
+  font-size:clamp(20px,4vw,30px);
+  font-weight:900;
+  letter-spacing:-1px;
+}
+
+.logo span{color:var(--cyan)}
+
+.subtitle{
+  color:var(--muted);
+  font-size:12px;
+  margin-top:4px;
+}
+
+.status{
+  border:1px solid #125343;
+  color:var(--green);
+  padding:5px 9px;
+  border-radius:4px;
+  white-space:nowrap;
+  font-size:11px;
+}
+
+nav{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin-bottom:20px;
+}
+
+nav button.active{
+  background:#063049;
+  border-color:var(--cyan);
+  color:var(--green);
+}
+
+.layout{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 300px;
+  gap:18px;
+}
+
+.panel{
+  background:rgba(12,18,32,.94);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:16px;
+  min-width:0;
+}
+
+.panel + .panel{margin-top:15px}
+
+h1,h2,h3{
+  margin:0 0 12px;
+  font-weight:700;
+}
+
+h1{font-size:20px;color:var(--green)}
+h2{font-size:16px;color:var(--cyan)}
+h3{font-size:14px;color:var(--text)}
+
+p{margin:8px 0;color:var(--muted)}
+
+.small{font-size:11px;color:var(--muted)}
+.muted{color:var(--muted)}
+.green{color:var(--green)}
+.cyan{color:var(--cyan)}
+.amber{color:var(--amber)}
+
+.section-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-bottom:14px;
+}
+
+.toolbar{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.toolbar input{min-width:180px}
+
+.cards{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+  gap:12px;
+}
+
+.record{
+  border:1px solid var(--line);
+  background:#080e17;
+  border-radius:6px;
+  padding:13px;
+  min-width:0;
+}
+
+.record:hover{border-color:#285477}
+
+.record-top{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  align-items:flex-start;
+}
+
+.record h3{overflow-wrap:anywhere}
+
+.tag{
+  display:inline-block;
+  border:1px solid #25415a;
+  color:#8bb8d9;
+  border-radius:3px;
+  padding:2px 6px;
+  margin:3px 4px 3px 0;
+  font-size:10px;
+}
+
+.tag.open,.tag.active,.tag.accepted,.tag.declared{
+  border-color:#125343;
+  color:var(--green);
+}
+
+.tag.proposed,.tag.discussing,.tag.acknowledged{
+  border-color:#72552a;
+  color:var(--amber);
+}
+
+.tag.withdrawn,.tag.declined,.tag.suspended{
+  border-color:#6c2637;
+  color:var(--red);
+}
+
+.record-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:12px;
+}
+
+.record-actions button{
+  padding:6px 8px;
+  font-size:11px;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin-bottom:15px;
+}
+
+.stat{
+  background:#070c14;
+  border:1px solid var(--line);
+  border-radius:5px;
+  padding:12px;
+}
+
+.stat strong{
+  display:block;
+  font-size:22px;
+  color:var(--green);
+}
+
+.stat span{font-size:10px;color:var(--muted)}
+
+.form-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.field{display:flex;flex-direction:column;gap:5px}
+.field.full{grid-column:1/-1}
+.field label{font-size:11px;color:var(--muted)}
+
+.form-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:14px;
+}
+
+.notice{
+  border-left:3px solid var(--amber);
+  padding:10px 12px;
+  background:#17130c;
+  color:#c6ad7f;
+  font-size:11px;
+  margin:12px 0;
+}
+
+.notice.info{
+  border-color:var(--cyan);
+  background:#071521;
+  color:#8bb8d9;
+}
+
+.empty{
+  border:1px dashed var(--line);
+  padding:24px;
+  text-align:center;
+  color:var(--muted);
+  border-radius:5px;
+}
+
+pre{
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  background:#050a11;
+  border:1px solid var(--line);
+  padding:12px;
+  border-radius:5px;
+  color:#a9cce4;
+  font-size:11px;
+}
+
+.hidden{display:none!important}
+
+footer{
+  margin-top:24px;
+  padding-top:14px;
+  border-top:1px solid var(--line);
+  color:var(--muted);
+  font-size:10px;
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+@media(max-width:850px){
+  .layout{grid-template-columns:1fr}
+}
+
+@media(max-width:560px){
+  .shell{padding:12px}
+  header{align-items:flex-start;flex-direction:column}
+  .form-grid{grid-template-columns:1fr}
+  .field.full{grid-column:auto}
+  .stats{grid-template-columns:1fr 1fr}
 }
 </style>
 </head>
+
 <body>
 <div class="shell">
-  <header class="topbar">
-    <div class="brandline">
-      <div class="brand">[ ENTROPY ENGINE // SYSTEM FRAMEWORK ]</div>
-      <div class="status">● OFFLINE / LOCAL</div>
-    </div>
-    <h1>Survive. Repurpose. Adapt.</h1>
-    <p class="subtitle">Framework v0.5 — a survival-oriented feedback system for reducing consequential uncertainty, selecting sufficient complexity, coordinating adaptive action, and circulating resources to preserve future capacity.</p>
-    <div class="meta">
-      <span class="tag">5 PILLARS</span><span class="tag">3 LIFECYCLE PRINCIPLES</span><span class="tag">REBALANCING LOOP</span>
-      <span class="tag">ECOSYSTEM READY</span><span class="tag">NO DEPENDENCIES</span>
-    </div>
-    <div class="toolbar">
-      <button class="btn primary" onclick="window.print()">PRINT / SAVE PDF</button>
-      <button class="btn" id="expandBtn" onclick="toggleDetails()">EXPAND ALL</button>
-      <button class="btn" onclick="window.scrollTo({top:0,behavior:'smooth'})">BACK TO TOP ↑</button>
-    </div>
-  </header>
 
-  <div class="layout">
-    <aside class="sidebar panel">
-      <div class="sidebar-title">SYSTEM INDEX</div>
-      <nav class="nav">
-        <a href="#objective">01 / Objective</a>
-        <a href="#pillars">02 / Five Pillars</a>
-        <a href="#lifecycle">03 / Lifecycle Principles</a>
-        <a href="#genesis">04 / Genesis</a>
-        <a href="#survival">05 / Survival Rule</a>
-        <a href="#endoflife">06 / End of Life</a>
-        <a href="#constitution">07 / Decision Rules</a>
-        <a href="#entropy">08 / Uncertainty</a>
-        <a href="#economics">09 / Circulation</a>
-        <a href="#rebalancing">10 / Rebalancing</a>
-        <a href="#ecosystem">11 / Ecosystem</a>
-        <a href="#feedback">12 / Feedback Loop</a>
-        <a href="#stability">13 / Stability</a>
-        <a href="#metrics">14 / Validation</a>
-        <a href="#test">15 / Decision Test</a>
-      </nav>
-    </aside>
-
-    <main class="content">
-      <section class="panel" id="objective">
-        <div class="kicker">00 // Governing objective</div>
-        <h2>Preserve viability and the capacity to create future value.</h2>
-        <p class="lead">A system must be capable of beginning, continuing, transforming, and ending without confusing its own persistence with the value it exists to create.</p>
-        <div class="callout"><strong>Core idea:</strong> A system must justify its existence through the value it creates, the capabilities it preserves, and the potential it enables.</div>
-        <p>Genesis establishes a reason to exist. Survival preserves the capacity to fulfill that purpose. End of Life recognizes when the current configuration should conclude and responsibly release its remaining potential.</p>
-        <p>Entropy Engine treats order, simplicity, speed, profit, and reuse as means rather than unconditional goals. Each must justify itself against the purpose and long-term viability of the whole system.</p>
-      </section>
-
-      <section class="panel" id="pillars">
-        <div class="kicker">01 // Operating architecture</div>
-        <h2>The five pillars</h2>
-        <div class="pillars">
-          <article class="pillar">
-            <div class="pillar-head"><div class="num">01</div><div><h3>Entropy Engine</h3><small>Consequential uncertainty reduction</small></div></div>
-            <p>Observe before acting. Separate evidence, assumptions, and unknowns. Reduce uncertainty when doing so is likely to improve a consequential decision.</p>
-            <div class="question">QUESTION: What uncertainty is worth reducing?</div>
-          </article>
-          <article class="pillar">
-            <div class="pillar-head"><div class="num">02</div><div><h3>Complexity Hierarchy</h3><small>Sufficient complexity</small></div></div>
-            <p>Choose the least costly adequate solution. Add complexity only when the simpler approach demonstrably fails to meet the need.</p>
-            <div class="question">QUESTION: What is the least complex solution that works?</div>
-          </article>
-          <article class="pillar">
-            <div class="pillar-head"><div class="num">03</div><div><h3>Organization Adaptation</h3><small>Self-realignment</small></div></div>
-            <p>Move decisions toward relevant knowledge. Let teams, responsibilities, and resource allocations change with the problem while retaining clear accountability.</p>
-            <div class="question">QUESTION: How can the organization realign without waiting for centralized instructions?</div>
-          </article>
-          <article class="pillar">
-            <div class="pillar-head"><div class="num">04</div><div><h3>Dynamic Response</h3><small>Stable adaptation</small></div></div>
-            <p>Recognize that information, people, software, governance, and culture change at different speeds. Match the pace of intervention to the system's ability to absorb it.</p>
-            <div class="question">QUESTION: How quickly can the system change and still converge?</div>
-          </article>
-          <article class="pillar wide">
-            <div class="pillar-head"><div class="num">05</div><div><h3>Economic Feedback &amp; Sustainable Circulation</h3><small>Resource viability and regeneration</small></div></div>
-            <p>Allocate money, energy, time, knowledge, and other resources to meet obligations, replenish capacity, withstand shocks, reward participation under explicit rules, and create future value.</p>
-            <div class="question">QUESTION: How must rewards and resources circulate for the system to keep working?</div>
-          </article>
-        </div>
-      </section>
-
-      <section class="panel" id="lifecycle">
-        <div class="kicker">02 // Foundational architecture</div>
-        <h2>The three lifecycle principles</h2>
-        <p class="lead">Genesis, Survival, and End of Life define the boundaries of a system's lifecycle. They are foundational principles, not additional operational pillars.</p>
-        <div class="pillars">
-          <article class="pillar">
-            <div class="pillar-head"><div class="num">01</div><div><h3>Genesis</h3><small>Purposeful emergence</small></div></div>
-            <p>Establish a meaningful need or opportunity and the minimum viable conditions for existence.</p>
-            <div class="question">QUESTION: Why should this system exist?</div>
-          </article>
-          <article class="pillar">
-            <div class="pillar-head"><div class="num">02</div><div><h3>Survival</h3><small>Viability through adaptation</small></div></div>
-            <p>Preserve the capacity to fulfill an essential purpose, not every existing structure.</p>
-            <div class="question">QUESTION: What must remain viable?</div>
-          </article>
-          <article class="pillar wide">
-            <div class="pillar-head"><div class="num">03</div><div><h3>End of Life</h3><small>Responsible dissolution</small></div></div>
-            <p>Conclude a system when it can no longer justify its existence, and release or transfer useful potential responsibly.</p>
-            <div class="question">QUESTION: When should this configuration let go?</div>
-          </article>
-        </div>
-        <div class="formula">Genesis → Survival → Adaptation → Repurposing → End of Life → New Genesis</div>
-        <p class="small">This is a conceptual lifecycle, not a mandatory linear sequence. Systems may iterate, split, merge, pause, or be replaced.</p>
-      </section>
-
-      <section class="panel" id="genesis">
-        <div class="kicker">03 // Foundational principle</div>
-        <h2>Genesis through purposeful emergence</h2>
-        <div class="callout"><strong>Genesis Principle:</strong> A system comes into existence when a viable configuration of resources, capabilities, relationships, and purpose emerges that can produce value beyond the cost of its existence.</div>
-        <div class="rules">
-          <article class="rule"><div class="n">GENESIS RULE 01</div><h3>Purpose before structure</h3><p>Establish the need, opportunity, and intended beneficiaries before creating processes, technology, or organizational structure.</p></article>
-          <article class="rule"><div class="n">GENESIS RULE 02</div><h3>Minimum viable existence</h3><p>Begin with the smallest viable configuration capable of testing whether the system deserves to exist.</p></article>
-          <article class="rule"><div class="n">GENESIS RULE 03</div><h3>Generative potential</h3><p>Prefer configurations that can create useful capabilities, opportunities, and future systems.</p></article>
-        </div>
-        <p class="small">Genesis is not a guarantee of success. It establishes a reason to begin, explicit assumptions, and conditions under which the system should continue, adapt, or stop.</p>
-      </section>
-
-      <section class="panel" id="survival">
-        <div class="kicker">02 // Foundational principle</div>
-        <h2>Survival through repurposing</h2>
-        <div class="callout"><strong>Survival Principle:</strong> Preserve the system's capacity to continue fulfilling its essential purpose by maintaining critical resources, adapting to changing conditions, and repurposing useful potential when existing arrangements no longer work.</div>
-        <ul>
-          <li>Survival is not the preservation of the current structure indefinitely.</li>
-          <li>Short-term output must not systematically destroy long-term capacity.</li>
-          <li>Repurpose useful potential before discarding it, when reuse is viable.</li>
-          <li>Change the purpose, structure, or business model when evidence shows the current arrangement is no longer viable.</li>
-        </ul>
-        <p class="small">Repurposing is a preference, not a command. If reuse is unsafe, infeasible, or more costly than a viable alternative, release the resource responsibly.</p>
-      </section>
-
-      <section class="panel" id="endoflife">
-        <div class="kicker">06 // Foundational principle</div>
-        <h2>End of life through responsible dissolution</h2>
-        <div class="callout"><strong>End-of-Life Principle:</strong> A system should conclude its existence when it can no longer fulfill a viable purpose, when its continued existence destroys more value than it creates, or when a better configuration can preserve or increase its useful potential.</div>
-        <div class="rules">
-          <article class="rule"><div class="n">EOL RULE 01</div><h3>Purpose expiration</h3><p>Recognize when the original need or opportunity no longer justifies the system.</p></article>
-          <article class="rule"><div class="n">EOL RULE 02</div><h3>Viability threshold</h3><p>Identify when recovery is infeasible, disproportionate, or no longer desirable.</p></article>
-          <article class="rule"><div class="n">EOL RULE 03</div><h3>Responsible dissolution</h3><p>Fulfill obligations, protect affected participants, and minimize avoidable harm.</p></article>
-          <article class="rule"><div class="n">EOL RULE 04</div><h3>Potential preservation</h3><p>Transfer knowledge, assets, relationships, and capabilities where doing so is viable and responsible.</p></article>
-        </div>
-        <div class="callout"><strong>End-of-life rule:</strong> The system ends. Its useful potential does not necessarily end with it.</div>
-        <p class="small">End of Life is not automatically failure. A system may conclude after fulfilling its purpose, after environmental change, or because another configuration can create greater value. Dissolution must still respect legal duties, safety, accountability, and the people affected.</p>
-      </section>
-
-      <section class="panel" id="constitution">
-        <div class="kicker">03 // Conflict resolution</div>
-        <h2>The decision constitution</h2>
-        <p>Use these rules when pillars conflict. The order is a default sequence of consideration, not a universal formula for every ethical or business trade-off.</p>
-        <div class="rules">
-          <article class="rule"><div class="n">RULE 01</div><h3>Protect hard constraints</h3><p>Respect legal obligations, critical safety limits, contractual commitments, and minimum viability thresholds.</p></article>
-          <article class="rule"><div class="n">RULE 02</div><h3>Protect future viability</h3><p>Account for cash, capacity, maintenance, people, knowledge, and the resources needed to continue operating.</p></article>
-          <article class="rule"><div class="n">RULE 03</div><h3>Pursue intended value</h3><p>Evaluate choices against the system's purpose, beneficiaries, and external dependencies.</p></article>
-          <article class="rule"><div class="n">RULE 04</div><h3>Choose sufficient action</h3><p>Compare lifecycle cost, risk, opportunity cost, complexity, and expected benefit.</p></article>
-          <article class="rule"><div class="n">RULE 05</div><h3>Preserve options</h3><p>Prefer bounded, reversible experiments under uncertainty when appropriate. Compare repurposing with replacement, retirement, and inaction.</p></article>
-          <article class="rule"><div class="n">RULE 06</div><h3>Verify and reconsider</h3><p>Assign an owner, define expected results, specify reconsideration triggers, and change course when evidence changes.</p></article>
-        </div>
-        <div class="callout"><strong>Conflict rule:</strong> When legitimate objectives conflict, make the trade-off explicit, identify who bears the cost, and assign responsibility for the decision.</div>
-      </section>
-
-      <section class="panel" id="entropy">
-        <div class="kicker">04 // Decision economics</div>
-        <h2>Reduce uncertainty only when it is worth the cost</h2>
-        <p>Not all uncertainty is harmful. Some is tolerable; some creates opportunity. Entropy is a guiding metaphor here, not a universal organizational quantity or a claim that all uncertainty can be measured as physical entropy.</p>
-        <div class="formula">V(a) = B(a) − C(a) − R(a) − O(a)</div>
-        <ul>
-          <li><strong>B(a)</strong> — expected benefit of action <em>a</em>.</li>
-          <li><strong>C(a)</strong> — total cost: implementation, operation, verification, maintenance, and failure handling.</li>
-          <li><strong>R(a)</strong> — expected risk penalty, including downside exposure.</li>
-          <li><strong>O(a)</strong> — opportunity cost of committed resources.</li>
-        </ul>
-        <p class="small">This is a conceptual decision aid, not a precise universal calculation. Use ranges, scenarios, and explicit assumptions when exact measurement is not possible. Include the value of information when an experiment can improve a later decision.</p>
-      </section>
-
-      <section class="panel" id="economics">
-        <div class="kicker">05 // Resource allocation</div>
-        <h2>Sustainable circulation</h2>
-        <p>The goal is neither to distribute everything nor to accumulate everything. It is to preserve a viable balance between obligations, renewal, resilience, rewards, and future opportunity.</p>
-        <div class="flow">
-          <div class="step"><div class="n">1</div><div><h3>Meet obligations and essential operating costs</h3><p>Keep the system legally, contractually, and operationally viable.</p></div></div>
-          <div class="down">↓</div>
-          <div class="step"><div class="n">2</div><div><h3>Maintain and replenish</h3><p>Restore infrastructure, skills, working capacity, knowledge, and other critical inputs.</p></div></div>
-          <div class="down">↓</div>
-          <div class="step"><div class="n">3</div><div><h3>Maintain appropriate resilience</h3><p>Hold reserves and spare capacity proportionate to uncertainty and potential shocks.</p></div></div>
-          <div class="down">↓</div>
-          <div class="step"><div class="n">4</div><div><h3>Distribute agreed rewards</h3><p>Use explicit rules that account for contributions, responsibility, agreements, rights, and fairness.</p></div></div>
-          <div class="down">↓</div>
-          <div class="step"><div class="n">5</div><div><h3>Invest in validated opportunities</h3><p>Allocate capital and effort based on expected value, risk, uncertainty, and opportunity cost.</p></div></div>
-          <div class="down">↻</div>
-          <div class="step"><div class="n">6</div><div><h3>Measure and rebalance</h3><p>Compare actual resource stocks and flows with thresholds, then redirect resources when critical imbalances emerge.</p></div></div>
-        </div>
-        <p class="small">These are priorities for consideration, not a rigid waterfall. Legal obligations, liquidity, risk, and business conditions may require concurrent funding or a different order.</p>
-        <hr>
-        <h3>Stocks and flows</h3>
-        <div class="formula">Change in stock = inflow − outflow</div>
-        <p>Track critical stocks such as cash, available capacity, expertise, trust, asset health, and ecological resources. If consumption persistently exceeds replenishment, the stock declines even while current output looks strong.</p>
-      </section>
-
-      <section class="panel" id="rebalancing">
-        <div class="kicker">06 // Cross-cutting control</div>
-        <h2>Rebalancing: restore viability, not a static equilibrium</h2>
-        <p class="lead">Rebalancing is the mechanism that detects when resources, responsibilities, risks, incentives, or value flows drift out of a viable range—and changes their allocation before the drift becomes a failure.</p>
-        <div class="callout"><strong>Rebalancing rule:</strong> Keep critical stocks above minimum viable thresholds, keep burdens and rewards visible, and redirect resources toward the greatest system-level need without destroying the capacity of the parts that supply them.</div>
-        <div class="controls">
-          <div class="control"><b>RESOURCE BALANCE</b>Rebalance cash, time, capacity, expertise, maintenance, energy, and reserves. Do not treat unlike resources as automatically interchangeable.</div>
-          <div class="control"><b>WORKLOAD &amp; RESPONSIBILITY</b>Move work, authority, and support toward where they are needed. Avoid persistent overload in one team while others hold unused capacity.</div>
-          <div class="control"><b>VALUE &amp; REWARD</b>Inspect who creates value, who captures it, who bears hidden costs, and whether agreed rewards sustain future contribution.</div>
-          <div class="control"><b>RISK &amp; DEPENDENCY</b>Reduce dangerous concentrations, single points of failure, excessive leverage, and dependencies that leave participants unable to adapt.</div>
-        </div>
-        <h3>Rebalancing cycle</h3>
-        <div class="flow">
-          <div class="step"><div class="n">1</div><div><h3>Measure stocks, flows, and thresholds</h3><p>Track current state, trend, uncertainty, minimum safe levels, and acceptable operating ranges.</p></div></div>
-          <div class="down">↓</div>
-          <div class="step"><div class="n">2</div><div><h3>Locate the imbalance and its cause</h3><p>Distinguish a temporary fluctuation from structural depletion, unfair burden, bottleneck, or incentive failure.</p></div></div>
-          <div class="down">↓</div>
-          <div class="step"><div class="n">3</div><div><h3>Choose a bounded correction</h3><p>Shift resources, adjust incentives, reduce demand, add capacity, change interfaces, or repurpose underused assets.</p></div></div>
-          <div class="down">↓</div>
-          <div class="step"><div class="n">4</div><div><h3>Check secondary effects</h3><p>Make sure correction does not merely move the shortage, risk, or cost to another team, participant, place, or future period.</p></div></div>
-          <div class="down">↻</div>
-          <div class="step"><div class="n">5</div><div><h3>Verify and repeat</h3><p>Compare the result with thresholds and intended outcomes; reverse, tune, or continue the correction.</p></div></div>
-        </div>
-        <p><strong>Do not rebalance toward sameness.</strong> Different participants may need different resources and rewards because their roles, risks, contributions, and constraints differ. The aim is a viable and defensible distribution, not equal quantities everywhere.</p>
-        <p class="small">Use deadbands, review intervals, and proportional corrections to avoid oscillation. In a crisis, temporary emergency reallocation may be justified, but it should have an owner, a limit, a review time, and a recovery plan.</p>
-      </section>
-
-      <section class="panel" id="ecosystem">
-        <div class="kicker">07 // Ecosystem operation</div>
-        <h2>The engine is a mechanism, not the ecosystem itself</h2>
-        <p>An ecosystem contains semi-independent people, teams, organizations, agents, infrastructure, customers, suppliers, and resource flows. Entropy Engine can provide a shared adaptive operating principle without requiring one central actor to control every participant.</p>
-        <div class="rules">
-          <article class="rule"><div class="n">ECOSYSTEM RULE 01</div><h3>Shared interfaces</h3><p>Define protocols, contracts, compatibility expectations, and safe ways to exchange information and value.</p></article>
-          <article class="rule"><div class="n">ECOSYSTEM RULE 02</div><h3>Local autonomy</h3><p>Allow participants to act on local knowledge within shared safety, interoperability, and accountability boundaries.</p></article>
-          <article class="rule"><div class="n">ECOSYSTEM RULE 03</div><h3>Entry, exit, and repurposing</h3><p>Let participants join, leave, fork, replace providers, or redirect capabilities without avoidable systemic collapse.</p></article>
-          <article class="rule"><div class="n">ECOSYSTEM RULE 04</div><h3>Governance and contestability</h3><p>Make rights, obligations, shared-resource access, conflict resolution, appeals, and abuse prevention explicit.</p></article>
-          <article class="rule"><div class="n">ECOSYSTEM RULE 05</div><h3>Diversity and resilience</h3><p>Preserve viable alternatives and redundancy where concentration would create a critical single point of failure.</p></article>
-          <article class="rule"><div class="n">ECOSYSTEM RULE 06</div><h3>Cross-boundary accounting</h3><p>Track costs and consequences exported to other participants, communities, ecosystems, and future periods.</p></article>
-        </div>
-        <div class="formula">Contribution → Value creation → Value capture → Rebalancing → Replenishment → New contribution</div>
-        <p>Competition and cooperation can coexist. The engine must not assume that participants naturally cooperate: incentives may reward extraction, dominant actors may accumulate control, and efficient systems may eliminate useful redundancy. Monitor where value accumulates, where depletion occurs, and who can challenge the rules.</p>
-        <p class="small">The same principles can operate inside one organization and between multiple ecosystems. Shared interfaces need not imply shared purpose; different ecosystems can cooperate, compete, negotiate boundaries, and evolve independently.</p>
-      </section>
-
-      <section class="panel" id="feedback">
-        <div class="kicker">08 // Operating cycle</div>
-        <h2>The self-realignment loop</h2>
-        <div class="flow">
-          <div class="step"><div class="n">1</div><div><h3>Sense</h3><p>Observe the market, system health, constraints, and emerging risks.</p></div></div>
-          <div class="down">↓</div>
-          <div class="step"><div class="n">2</div><div><h3>Interpret</h3><p>Separate evidence, assumptions, uncertainty, urgency, and consequence.</p></div></div>
-          <div class="down">↓</div>
-          <div class="step"><div class="n">3</div><div><h3>Decide</h3><p>Apply the decision constitution and name the accountable owner.</p></div></div>
-          <div class="down">↓</div>
-          <div class="step"><div class="n">4</div><div><h3>Act</h3><p>Choose a bounded, proportionate intervention.</p></div></div>
-          <div class="down">↓</div>
-          <div class="step"><div class="n">5</div><div><h3>Verify</h3><p>Compare observed results with expected outcomes and costs.</p></div></div>
-          <div class="down">↓</div>
-          <div class="step"><div class="n">6</div><div><h3>Realign</h3><p>Repurpose resources, update priorities, scale, stop, or reverse the decision.</p></div></div>
-        </div>
-        <p class="small">This is a feedback loop, not a rigid waterfall. Small, low-risk decisions need not incur heavyweight review. Higher-impact or irreversible decisions require stronger evidence and controls.</p>
-      </section>
-
-      <section class="panel" id="stability">
-        <div class="kicker">09 // Dynamic stability</div>
-        <h2>Adapt without oscillation</h2>
-        <div class="controls">
-          <div class="control"><b>DAMPING</b>Do not make large changes in response to every small fluctuation.</div>
-          <div class="control"><b>PROPORTIONALITY</b>Match intervention size and speed to urgency, confidence, and reversibility.</div>
-          <div class="control"><b>PROTECTED SLACK</b>Maintain spare capacity for shocks, exploration, and recovery.</div>
-          <div class="control"><b>TIME CONSTANTS</b>Account for different response speeds in information, people, systems, governance, and culture.</div>
-        </div>
-        <div class="callout"><strong>Rule:</strong> Never confuse the speed of issuing a change with the speed of achieving a stable new state.</div>
-        <p class="small">Time-constant models are approximations. Real systems can be nonlinear, coupled, delayed, and subject to sudden shocks. Validate assumptions against observed behavior.</p>
-      </section>
-
-      <section class="panel" id="metrics">
-        <div class="kicker">10 // Falsification and learning</div>
-        <h2>Test whether the framework works</h2>
-        <table>
-          <thead><tr><th>Dimension</th><th>Possible evidence</th><th>Warning signal</th></tr></thead>
-          <tbody>
-            <tr><td>Survival</td><td>Liquidity, obligations met, critical-risk exposure</td><td>Output rises while ability to continue declines</td></tr>
-            <tr><td>Value</td><td>Customer outcomes, retention, validated demand, mission results</td><td>Activity increases without meaningful outcomes</td></tr>
-            <tr><td>Regeneration</td><td>Maintenance backlog, staff capacity, learning, asset renewal</td><td>Critical stocks are depleted faster than replenished</td></tr>
-            <tr><td>Adaptation</td><td>Time from evidence to effective change; recovery after failure</td><td>Persistent overreaction, delay, or oscillation</td></tr>
-            <tr><td>Decision efficiency</td><td>Decision latency, rework, coordination overhead, cost per verified outcome</td><td>The framework adds more overhead than value</td></tr>
-            <tr><td>Balance &amp; circulation</td><td>Critical stocks vs thresholds, concentration, replenishment, workload, value capture</td><td>Persistent depletion or recurring imbalances shifted to others</td></tr>
-          </tbody>
-        </table>
-        <div class="callout"><strong>Metrics are sensors, not targets.</strong> Use multiple measures, inspect unintended effects, and do not let a single score determine the system's direction.</div>
-        <p>Every substantial intervention should have an expected result and a review condition. If it fails, revise or reverse it. If the framework itself does not improve outcomes, reduce risk, or preserve options, simplify the framework.</p>
-      </section>
-
-      <section class="panel" id="test">
-        <div class="kicker">11 // Interactive tool</div>
-        <h2>Decision admission test</h2>
-        <p>Before introducing a new process, technology, agent, structure, or investment, check the conditions below. This is a prompt for disciplined judgment, not an automatic approval algorithm.</p>
-        <div class="checklist" id="checks">
-          <label class="checkrow"><input type="checkbox"><span><strong>Purpose:</strong> The intended outcome and affected system are explicit.</span></label>
-          <label class="checkrow"><input type="checkbox"><span><strong>Evidence:</strong> The problem or opportunity is supported by observations, not only assumptions.</span></label>
-          <label class="checkrow"><input type="checkbox"><span><strong>Simpler alternative:</strong> A less complex viable option has been considered.</span></label>
-          <label class="checkrow"><input type="checkbox"><span><strong>Viability:</strong> Hard constraints and minimum resource levels remain protected.</span></label>
-          <label class="checkrow"><input type="checkbox"><span><strong>Repurposing:</strong> Reuse, replacement, retirement, and inaction have been compared where relevant.</span></label>
-          <label class="checkrow"><input type="checkbox"><span><strong>Rebalancing:</strong> Critical stocks, thresholds, burden/reward flows, and possible secondary effects have been checked.</span></label>
-          <label class="checkrow"><input type="checkbox"><span><strong>Accountability:</strong> An owner, expected result, and review trigger are defined.</span></label>
-          <label class="checkrow"><input type="checkbox"><span><strong>Verification:</strong> There is a practical way to evaluate the result and reverse course if needed.</span></label>
-        </div>
-        <div class="result" id="checkResult" aria-live="polite">0 of 8 checks complete. Use this to expose missing reasoning, not to manufacture certainty.</div>
-        <div class="toolbar interactive-only">
-          <button class="btn primary" onclick="evaluateChecks()">EVALUATE DECISION</button>
-          <button class="btn" onclick="resetChecks()">RESET CHECKS</button>
-        </div>
-      </section>
-
-      <section class="panel">
-        <div class="kicker">12 // Compact definition</div>
-        <h2>Entropy Engine</h2>
-        <p class="lead">A survival-oriented, self-realigning framework for reducing consequential uncertainty, selecting sufficient complexity, coordinating adaptive action, and rebalancing resource and value flows so that systems and ecosystems can continue creating value.</p>
-        <p>It operates under explicit safety, accountability, and viability constraints; preserves useful potential through repurposing where justified; rebalances when critical stocks, burdens, rewards, or dependencies drift; and tests decisions against observed outcomes.</p>
-        <hr>
-        <div class="kicker">Design criterion</div>
-        <div class="callout"><strong>The system must justify its emergence, preserve the capacity to create value while viable, and conclude responsibly when its continued existence no longer serves that purpose.</strong></div>
-      </section>
-    </main>
+<header>
+  <div>
+    <div class="logo">BUILDER<span>-ON</span></div>
+    <div class="subtitle">OPEN SUPPLY NETWORK // DISCOVER · PROPOSE · COOPERATE</div>
   </div>
-  <footer class="footer">ENTROPY ENGINE // FRAMEWORK v0.5 // STANDALONE HTML / NO EXTERNAL DEPENDENCIES</footer>
+  <div class="status">LOCAL WORKSPACE // V0.1</div>
+</header>
+
+<nav id="navigation">
+  <button data-view="home" class="active">Overview</button>
+  <button data-view="projects">Projects</button>
+  <button data-view="suppliers">Suppliers</button>
+  <button data-view="providers">Providers</button>
+  <button data-view="participation">Participation</button>
+  <button data-view="relationships">Relationships</button>
+  <button data-view="export">PR / Export</button>
+</nav>
+
+<div class="layout">
+  <main id="main"></main>
+
+  <aside>
+    <section class="panel">
+      <h2>NETWORK STATUS</h2>
+      <div class="stats">
+        <div class="stat"><strong id="countProjects">0</strong><span>PROJECTS</span></div>
+        <div class="stat"><strong id="countSuppliers">0</strong><span>SUPPLIERS</span></div>
+        <div class="stat"><strong id="countProviders">0</strong><span>PROVIDERS</span></div>
+      </div>
+      <p class="small">This is a local workspace. Your changes are stored in this browser only.</p>
+    </section>
+
+    <section class="panel">
+      <h2>GOVERNING PRINCIPLE</h2>
+      <p class="green">Open participation without centralized permission.</p>
+      <p>Any registered supplier or provider may discover an open project and propose cooperation.</p>
+      <p>The project owner remains free to accept or decline.</p>
+    </section>
+
+    <section class="panel">
+      <h2>RESPONSIBILITY</h2>
+      <p>Builder-on provides discovery and contact channels.</p>
+      <p>Participants independently manage negotiations, contracts, payments, delivery, and disputes.</p>
+      <p class="small">A published record is not an endorsement, certification, or guarantee.</p>
+    </section>
+  </aside>
 </div>
+
+<footer>
+  <span>BUILDER-ON // OPEN COORDINATION</span>
+  <span>NO BACKEND · NO DATABASE · NO TRANSACTION LAYER</span>
+</footer>
+</div>
+
 <script>
-function toggleDetails(){
-  const btn=document.getElementById('expandBtn');
-  const items=[...document.querySelectorAll('.panel')];
-  const open=btn.dataset.open!=='true';
-  items.forEach(el=>{
-    el.querySelectorAll('.pillar p,.pillar .question,.rule p,.step p').forEach(node=>{
-      node.style.display=open?'block':'';
-    });
+"use strict";
+
+/* =========================================================
+   BUILDER-ON LOCAL WORKSPACE
+   No dependencies. No network calls.
+   ========================================================= */
+
+const STORAGE_KEY = "builder_on_supply_network_v1";
+
+const today = () => new Date().toISOString().slice(0,10);
+
+const emptyData = () => ({
+  projects: [],
+  suppliers: [],
+  providers: [],
+  participation: [],
+  relationships: []
+});
+
+let data = loadData();
+let currentView = "home";
+let editing = null;
+let exportRecord = null;
+
+function loadData(){
+  try{
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if(saved){
+      const parsed = JSON.parse(saved);
+      return {
+        projects: parsed.projects || [],
+        suppliers: parsed.suppliers || [],
+        providers: parsed.providers || [],
+        participation: parsed.participation || [],
+        relationships: parsed.relationships || []
+      };
+    }
+  }catch(error){
+    console.warn("Could not load local data:",error);
+  }
+  return emptyData();
+}
+
+function saveData(){
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(data,null,2));
+  updateStats();
+}
+
+function updateStats(){
+  document.getElementById("countProjects").textContent = data.projects.length;
+  document.getElementById("countSuppliers").textContent = data.suppliers.length;
+  document.getElementById("countProviders").textContent = data.providers.length;
+}
+
+function escapeHTML(value){
+  return String(value ?? "").replace(/[&<>"']/g,char => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
+  }[char]));
+}
+
+function makeId(type){
+  const prefixes = {
+    projects:"BO-P-",
+    suppliers:"BO-S-",
+    providers:"BO-V-",
+    participation:"BO-I-",
+    relationships:"BO-R-"
+  };
+
+  const prefix = prefixes[type];
+  const ids = data[type].map(record => Number(record.id.split("-").pop()));
+  const next = Math.max(0,...ids)+1;
+  return prefix + String(next).padStart(4,"0");
+}
+
+function recordById(type,id){
+  return data[type].find(record => record.id === id);
+}
+
+function statusTag(status){
+  return `<span class="tag ${escapeHTML(status)}">${escapeHTML(status)}</span>`;
+}
+
+function contactLinks(contact){
+  if(!contact) return "";
+  const links = [];
+
+  if(contact.email){
+    const email = escapeHTML(contact.email);
+    links.push(`<a href="mailto:${email}">EMAIL</a>`);
+  }
+
+  if(contact.website){
+    const website = escapeHTML(contact.website);
+    links.push(`<a href="${website}" target="_blank" rel="noopener">WEBSITE</a>`);
+  }
+
+  return links.join(" · ");
+}
+
+function listTags(items){
+  return (items || []).map(item =>
+    `<span class="tag">${escapeHTML(item)}</span>`
+  ).join("");
+}
+
+function render(){
+  document.querySelectorAll("nav button").forEach(button => {
+    button.classList.toggle("active",button.dataset.view === currentView);
   });
-  btn.dataset.open=String(open);
-  btn.textContent=open?'COMPACT VIEW':'EXPAND ALL';
+
+  const main = document.getElementById("main");
+
+  if(currentView === "home") main.innerHTML = renderHome();
+  else if(currentView === "projects") main.innerHTML = renderDirectory("projects");
+  else if(currentView === "suppliers") main.innerHTML = renderDirectory("suppliers");
+  else if(currentView === "providers") main.innerHTML = renderDirectory("providers");
+  else if(currentView === "participation") main.innerHTML = renderDirectory("participation");
+  else if(currentView === "relationships") main.innerHTML = renderDirectory("relationships");
+  else if(currentView === "export") main.innerHTML = renderExport();
+
+  updateStats();
 }
-const checks=[...document.querySelectorAll('#checks input[type="checkbox"]')];
-const result=document.getElementById('checkResult');
-function updateCount(){
-  const n=checks.filter(c=>c.checked).length;
-  result.className='result';
-  result.textContent=n+' of '+checks.length+' checks complete. '+(n===checks.length?'All checks are marked complete; validate the assumptions and risks before acting.':'Use this to expose missing reasoning, not to manufacture certainty.');
+
+function renderHome(){
+  const openProjects = data.projects.filter(project => project.status === "open").length;
+
+  return `
+    <section class="panel">
+      <h1>OPEN SUPPLY NETWORK</h1>
+      <p>Builder-on connects independent participants around productive projects.</p>
+      <p>Discover projects, find suppliers and providers, and propose participation without waiting for an invitation.</p>
+
+      <div class="notice info">
+        This workspace is a local prototype. Published Builder-on records should live in the Git repository and be changed through pull requests.
+      </div>
+
+      <div class="stats">
+        <div class="stat"><strong>${openProjects}</strong><span>OPEN PROJECTS</span></div>
+        <div class="stat"><strong>${data.participation.length}</strong><span>PROPOSALS</span></div>
+        <div class="stat"><strong>${data.relationships.length}</strong><span>RELATIONSHIPS</span></div>
+      </div>
+
+      <div class="section-head">
+        <h2>OPEN PROJECTS</h2>
+        <button class="primary" onclick="navigate('projects')">Browse projects →</button>
+      </div>
+
+      ${renderProjectCards(data.projects.filter(project => project.status === "open").slice(0,4))}
+
+      <div class="form-actions">
+        <button onclick="navigate('suppliers')">Find suppliers</button>
+        <button onclick="navigate('providers')">Find providers</button>
+        <button onclick="navigate('participation')">View participation</button>
+      </div>
+    </section>
+  `;
 }
-function evaluateChecks(){
-  const n=checks.filter(c=>c.checked).length;
-  result.className='result '+(n===checks.length?'good':'warn');
-  if(n===checks.length){
-    result.textContent='All 8 checks complete. This is not automatic approval: confirm evidence quality, proportionality, constraints, and accountable ownership.';
+
+function renderDirectory(type){
+  const titles = {
+    projects:"PROJECT DIRECTORY",
+    suppliers:"SUPPLIER DIRECTORY",
+    providers:"PROVIDER DIRECTORY",
+    participation:"OPEN PARTICIPATION",
+    relationships:"DECLARED RELATIONSHIPS"
+  };
+
+  const descriptions = {
+    projects:"Projects describe requirements and opportunities.",
+    suppliers:"Suppliers offer materials, products, and resources.",
+    providers:"Providers offer services, expertise, and execution.",
+    participation:"Participation proposals express interest. They are not contracts or obligations.",
+    relationships:"Relationships record associations declared by the relevant parties."
+  };
+
+  const records = data[type];
+
+  return `
+    <section class="panel">
+      <div class="section-head">
+        <div>
+          <h1>${titles[type]}</h1>
+          <p>${descriptions[type]}</p>
+        </div>
+        <button class="primary" onclick="showForm('${type}')">+ Add record</button>
+      </div>
+
+      <div class="toolbar">
+        <input id="searchBox" placeholder="Search records..." oninput="filterRecords('${type}')">
+        <select id="statusFilter" onchange="filterRecords('${type}')">
+          <option value="">All statuses</option>
+          ${statusOptions(type)}
+        </select>
+      </div>
+
+      <div id="recordList" class="cards" style="margin-top:14px">
+        ${renderRecords(type,records)}
+      </div>
+    </section>
+  `;
+}
+
+function statusOptions(type){
+  const statuses = {
+    projects:["draft","open","in-progress","completed","suspended","withdrawn"],
+    suppliers:["active","inactive","suspended","withdrawn"],
+    providers:["active","inactive","suspended","withdrawn"],
+    participation:["proposed","acknowledged","discussing","accepted","declined","withdrawn"],
+    relationships:["declared","contacted","agreed","in-progress","completed","withdrawn"]
+  };
+
+  return (statuses[type] || []).map(status =>
+    `<option value="${status}">${status}</option>`
+  ).join("");
+}
+
+function renderRecords(type,records){
+  if(!records.length){
+    return `<div class="empty" style="grid-column:1/-1">No records yet.<br><br>Add a record to this local workspace.</div>`;
+  }
+
+  if(type === "projects") return renderProjectCards(records);
+
+  return records.map(record => {
+    if(type === "suppliers" || type === "providers"){
+      return `
+        <article class="record">
+          <div class="record-top">
+            <h3>${escapeHTML(record.name)}</h3>
+            ${statusTag(record.status)}
+          </div>
+          <div class="small">${escapeHTML(record.id)} · ${escapeHTML(record.location || "Location not specified")}</div>
+          <p>${escapeHTML(record.description)}</p>
+          <div>${listTags(record.categories)}</div>
+          <p class="small">${contactLinks(record.contact)}</p>
+          <div class="record-actions">
+            <button onclick="proposeParticipation('${record.id}')">Propose participation</button>
+            <button onclick="editRecord('${type}','${record.id}')">Edit</button>
+            <button class="danger" onclick="deleteRecord('${type}','${record.id}')">Delete</button>
+          </div>
+        </article>
+      `;
+    }
+
+    if(type === "participation"){
+      const project = recordById("projects",record.project);
+      const participant = recordById(record.participant_type === "supplier" ? "suppliers" : "providers",record.participant);
+
+      return `
+        <article class="record">
+          <div class="record-top">
+            <h3>${escapeHTML(record.id)}</h3>
+            ${statusTag(record.status)}
+          </div>
+          <p><span class="cyan">PROJECT</span> ${escapeHTML(project?.name || record.project)}</p>
+          <p><span class="cyan">PARTICIPANT</span> ${escapeHTML(participant?.name || record.participant)}</p>
+          <p>${escapeHTML(record.proposal?.description || "")}</p>
+          <p class="small">Participant declaration: ${record.declarations?.participant ? "yes" : "no"}<br>
+          Project owner declaration: ${record.declarations?.project_owner ? "yes" : "no"}</p>
+          <div class="record-actions">
+            <button onclick="editRecord('participation','${record.id}')">Update</button>
+            <button class="danger" onclick="deleteRecord('participation','${record.id}')">Delete</button>
+          </div>
+        </article>
+      `;
+    }
+
+    if(type === "relationships"){
+      const project = recordById("projects",record.project);
+      const supplier = recordById("suppliers",record.supplier);
+      const provider = recordById("providers",record.provider);
+
+      return `
+        <article class="record">
+          <div class="record-top">
+            <h3>${escapeHTML(record.id)}</h3>
+            ${statusTag(record.status)}
+          </div>
+          <p><span class="cyan">PROJECT</span> ${escapeHTML(project?.name || record.project)}</p>
+          <p><span class="cyan">SUPPLIER</span> ${escapeHTML(supplier?.name || record.supplier)}</p>
+          <p><span class="cyan">PROVIDER</span> ${escapeHTML(provider?.name || record.provider)}</p>
+          <p>${escapeHTML(record.description || "")}</p>
+          <p class="small">Declared by: ${escapeHTML((record.declared_by || []).join(", "))}</p>
+          <div class="record-actions">
+            <button onclick="editRecord('relationships','${record.id}')">Update</button>
+            <button class="danger" onclick="deleteRecord('relationships','${record.id}')">Delete</button>
+          </div>
+        </article>
+      `;
+    }
+
+    return "";
+  }).join("");
+}
+
+function renderProjectCards(records){
+  if(!records.length){
+    return `<div class="empty" style="grid-column:1/-1">No projects found.</div>`;
+  }
+
+  return `<div class="cards" style="grid-column:1/-1">${records.map(project => `
+    <article class="record">
+      <div class="record-top">
+        <h3>${escapeHTML(project.name)}</h3>
+        ${statusTag(project.status)}
+      </div>
+      <div class="small">${escapeHTML(project.id)} · ${escapeHTML(project.location || "Location not specified")}</div>
+      <p>${escapeHTML(project.description)}</p>
+      <div>${listTags(project.category)}</div>
+      <p class="small">Requirements: ${(project.requirements || []).length}</p>
+      <p class="small">${contactLinks(project.contact)}</p>
+      <div class="record-actions">
+        ${project.status === "open" ? `<button onclick="showForm('participation','${project.id}')">Propose participation</button>` : ""}
+        <button onclick="viewProject('${project.id}')">Details</button>
+        <button onclick="editRecord('projects','${project.id}')">Edit</button>
+        <button class="danger" onclick="deleteRecord('projects','${project.id}')">Delete</button>
+      </div>
+    </article>
+  `).join("")}</div>`;
+}
+
+function filterRecords(type){
+  const query = (document.getElementById("searchBox")?.value || "").toLowerCase();
+  const status = document.getElementById("statusFilter")?.value || "";
+
+  const filtered = data[type].filter(record => {
+    const matchesStatus = !status || record.status === status;
+    const matchesQuery = JSON.stringify(record).toLowerCase().includes(query);
+    return matchesStatus && matchesQuery;
+  });
+
+  document.getElementById("recordList").innerHTML = renderRecords(type,filtered);
+}
+
+function navigate(view){
+  currentView = view;
+  editing = null;
+  render();
+}
+
+document.getElementById("navigation").addEventListener("click",event => {
+  const button = event.target.closest("button[data-view]");
+  if(button) navigate(button.dataset.view);
+});
+
+function viewProject(id){
+  const project = recordById("projects",id);
+  if(!project) return;
+
+  const main = document.getElementById("main");
+
+  main.innerHTML = `
+    <section class="panel">
+      <button onclick="navigate('projects')">← Back to projects</button>
+      <h1 style="margin-top:15px">${escapeHTML(project.name)}</h1>
+      <p class="small">${escapeHTML(project.id)} · ${escapeHTML(project.location || "")}</p>
+      ${statusTag(project.status)}
+      <p>${escapeHTML(project.description)}</p>
+      <h2>REQUIREMENTS</h2>
+      <ul>${(project.requirements || []).map(item => `<li>${escapeHTML(item)}</li>`).join("")}</ul>
+      <h2>CONTACT</h2>
+      <p>${contactLinks(project.contact)}</p>
+      <h2>PARTICIPATION</h2>
+      <p>Any registered supplier or provider may propose participation while this project is open.</p>
+      ${project.status === "open" ? `<button class="primary" onclick="showForm('participation','${project.id}')">Propose participation</button>` : ""}
+    </section>
+  `;
+}
+
+function showForm(type,preselectedProject=""){
+  editing = null;
+  currentView = type;
+  render();
+
+  const main = document.getElementById("main");
+  main.innerHTML = `
+    <section class="panel">
+      <div class="section-head">
+        <h1>${type === "participation" ? "PROPOSE PARTICIPATION" : "ADD " + type.toUpperCase()}</h1>
+        <button onclick="navigate('${type}')">Cancel</button>
+      </div>
+      ${formHTML(type,null,preselectedProject)}
+    </section>
+  `;
+}
+
+function editRecord(type,id){
+  const record = recordById(type,id);
+  if(!record) return;
+
+  editing = {type,id};
+  currentView = type;
+  render();
+
+  document.getElementById("main").innerHTML = `
+    <section class="panel">
+      <div class="section-head">
+        <h1>EDIT ${type.toUpperCase()}</h1>
+        <button onclick="navigate('${type}')">Cancel</button>
+      </div>
+      ${formHTML(type,record)}
+    </section>
+  `;
+}
+
+function field(label,name,value="",options=null,full=false){
+  const safeName = escapeHTML(name);
+  const safeValue = escapeHTML(value);
+
+  let control;
+
+  if(options){
+    control = `<select name="${safeName}" required>
+      <option value="">Select...</option>
+      ${options.map(option => {
+        const val = typeof option === "string" ? option : option.value;
+        const text = typeof option === "string" ? option : option.label;
+        return `<option value="${escapeHTML(val)}" ${val === value ? "selected" : ""}>${escapeHTML(text)}</option>`;
+      }).join("")}
+    </select>`;
   }else{
-    result.textContent=(checks.length-n)+' check(s) remain. Resolve or explicitly accept the gaps before proceeding with a consequential or irreversible decision.';
+    control = `<input name="${safeName}" value="${safeValue}" required>`;
+  }
+
+  return `<div class="field ${full ? "full" : ""}"><label>${label}</label>${control}</div>`;
+}
+
+function textareaField(label,name,value="",full=true){
+  return `<div class="field ${full ? "full" : ""}">
+    <label>${label}</label>
+    <textarea name="${escapeHTML(name)}">${escapeHTML(value)}</textarea>
+  </div>`;
+}
+
+function formHTML(type,record=null,preselectedProject=""){
+  const isEdit = !!record;
+
+  if(type === "projects"){
+    return `
+      <form onsubmit="submitRecord(event,'projects')">
+        <div class="form-grid">
+          ${field("Project name","name",record?.name)}
+          ${field("Status","status",record?.status || "open",["draft","open","in-progress","completed","suspended","withdrawn"])}
+          ${field("Location","location",record?.location)}
+          ${field("Categories (comma separated)","category",(record?.category || []).join(", "))}
+          ${textareaField("Description","description",record?.description)}
+          ${textareaField("Requirements (one per line)","requirements",(record?.requirements || []).join("\n"))}
+          ${field("Contact email","email",record?.contact?.email || "")}
+          ${field("Website","website",record?.contact?.website || "")}
+        </div>
+        <div class="form-actions"><button class="primary" type="submit">${isEdit ? "Save changes" : "Create project"}</button></div>
+      </form>
+    `;
+  }
+
+  if(type === "suppliers" || type === "providers"){
+    return `
+      <form onsubmit="submitRecord(event,'${type}')">
+        <div class="form-grid">
+          ${field("Name","name",record?.name)}
+          ${field("Status","status",record?.status || "active",["active","inactive","suspended","withdrawn"])}
+          ${field("Location","location",record?.location)}
+          ${field("Categories (comma separated)","categories",(record?.categories || []).join(", "))}
+          ${textareaField("Description","description",record?.description)}
+          ${textareaField("Capabilities (one per line)","capabilities",(record?.capabilities || []).join("\n"))}
+          ${field("Contact email","email",record?.contact?.email || "")}
+          ${field("Website","website",record?.contact?.website || "")}
+        </div>
+        <div class="form-actions"><button class="primary" type="submit">${isEdit ? "Save changes" : "Create record"}</button></div>
+      </form>
+    `;
+  }
+
+  if(type === "participation"){
+    const openProjects = data.projects.filter(project => project.status === "open");
+    const participants = [
+      ...data.suppliers.filter(item => item.status === "active").map(item => ({value:item.id,label:"Supplier · "+item.name})),
+      ...data.providers.filter(item => item.status === "active").map(item => ({value:item.id,label:"Provider · "+item.name}))
+    ];
+
+    return `
+      <div class="notice">
+        A proposal expresses interest only. It does not create an obligation, exclusivity, endorsement, or contract. Do not claim the project owner's acceptance.
+      </div>
+      <form onsubmit="submitRecord(event,'participation')">
+        <div class="form-grid">
+          ${field("Open project","project",record?.project || preselectedProject,openProjects.map(item => ({value:item.id,label:item.id+" · "+item.name})),true)}
+          ${field("Supplier or provider","participant",record?.participant,participants,true)}
+          ${field("Status","status",record?.status || "proposed",["proposed","acknowledged","discussing","accepted","declined","withdrawn"],true)}
+          ${textareaField("Proposed contribution","proposal_description",record?.proposal?.description)}
+          ${field("Proposal contact email","proposal_email",record?.proposal?.contact_email || "")}
+          ${field("Proposal website","proposal_website",record?.proposal?.website || "")}
+          <div class="field full">
+            <label><input type="checkbox" name="participant_declaration" style="width:auto" ${record?.declarations?.participant ? "checked" : ""}>
+            I am authorized to submit this proposal for the participant.</label>
+          </div>
+          <div class="field full">
+            <label><input type="checkbox" name="owner_declaration" style="width:auto" ${record?.declarations?.project_owner ? "checked" : ""}>
+            The project owner has independently confirmed acceptance. Leave unchecked unless this is true.</label>
+          </div>
+        </div>
+        <div class="form-actions"><button class="primary" type="submit">${isEdit ? "Save changes" : "Submit local proposal"}</button></div>
+      </form>
+    `;
+  }
+
+  if(type === "relationships"){
+    const projects = data.projects;
+    const suppliers = data.suppliers;
+    const providers = data.providers;
+
+    return `
+      <div class="notice">
+        A relationship must not be published as mutually declared unless the relevant parties have independently confirmed it. This local form does not verify those declarations.
+      </div>
+      <form onsubmit="submitRecord(event,'relationships')">
+        <div class="form-grid">
+          ${field("Project","project",record?.project,projects.map(item => ({value:item.id,label:item.id+" · "+item.name})),true)}
+          ${field("Supplier","supplier",record?.supplier,suppliers.map(item => ({value:item.id,label:item.id+" · "+item.name})),true)}
+          ${field("Provider","provider",record?.provider,providers.map(item => ({value:item.id,label:item.id+" · "+item.name})),true)}
+          ${field("Status","status",record?.status || "declared",["declared","contacted","agreed","in-progress","completed","withdrawn"],true)}
+          ${field("Declared by (IDs, comma separated)","declared_by",(record?.declared_by || []).join(", "),null,true)}
+          ${textareaField("Description","description",record?.description)}
+        </div>
+        <div class="form-actions"><button class="primary" type="submit">${isEdit ? "Save changes" : "Create local relationship"}</button></div>
+      </form>
+    `;
+  }
+
+  return `<p>Unknown record type.</p>`;
+}
+
+function splitList(value){
+  return String(value || "").split(",").map(item => item.trim()).filter(Boolean);
+}
+
+function splitLines(value){
+  return String(value || "").split("\n").map(item => item.trim()).filter(Boolean);
+}
+
+function submitRecord(event,type){
+  event.preventDefault();
+
+  const form = event.target;
+  const formData = new FormData(form);
+  const get = name => String(formData.get(name) || "").trim();
+
+  const isEdit = editing && editing.type === type;
+  const existing = isEdit ? recordById(type,editing.id) : null;
+  const id = existing?.id || makeId(type);
+
+  let record = {
+    id,
+    type:type === "participation" ? "participation" : type.slice(0,-1),
+    created:existing?.created || today(),
+    updated:today()
+  };
+
+  if(type === "projects"){
+    record = {
+      ...record,
+      name:get("name"),
+      description:get("description"),
+      status:get("status"),
+      category:splitList(get("category")),
+      location:get("location"),
+      contact:{email:get("email"),website:get("website")},
+      requirements:splitLines(get("requirements"))
+    };
+  }
+
+  if(type === "suppliers" || type === "providers"){
+    record = {
+      ...record,
+      name:get("name"),
+      description:get("description"),
+      status:get("status"),
+      categories:splitList(get("categories")),
+      location:get("location"),
+      contact:{email:get("email"),website:get("website")},
+      capabilities:splitLines(get("capabilities"))
+    };
+  }
+
+  if(type === "participation"){
+    const participantId = get("participant");
+    const participantType = participantId.startsWith("BO-S-") ? "supplier" : "provider";
+    const project = recordById("projects",get("project"));
+    const participant = recordById(participantType === "supplier" ? "suppliers" : "providers",participantId);
+
+    if(!project || project.status !== "open"){
+      alert("Participation proposals require an existing open project.");
+      return;
+    }
+
+    if(!participant || participant.status !== "active"){
+      alert("Select an existing active supplier or provider.");
+      return;
+    }
+
+    const status = get("status");
+    const ownerDeclaration = formData.has("owner_declaration");
+    const participantDeclaration = formData.has("participant_declaration");
+
+    if(status === "accepted" && !(ownerDeclaration && participantDeclaration)){
+      alert("Accepted participation requires declarations from both parties.");
+      return;
+    }
+
+    record = {
+      ...record,
+      project:project.id,
+      participant:participant.id,
+      participant_type:participantType,
+      status,
+      proposal:{
+        description:get("proposal_description"),
+        contact_email:get("proposal_email"),
+        website:get("proposal_website")
+      },
+      declarations:{
+        participant:participantDeclaration,
+        project_owner:ownerDeclaration
+      }
+    };
+  }
+
+  if(type === "relationships"){
+    const project = recordById("projects",get("project"));
+    const supplier = recordById("suppliers",get("supplier"));
+    const provider = recordById("providers",get("provider"));
+    const declaredBy = splitList(get("declared_by"));
+
+    if(!project || !supplier || !provider){
+      alert("Select an existing project, supplier, and provider.");
+      return;
+    }
+
+    if(["agreed","in-progress","completed"].includes(get("status")) &&
+       !(declaredBy.includes(supplier.id) && declaredBy.includes(provider.id))){
+      alert("This status requires both supplier and provider to be listed as declarants.");
+      return;
+    }
+
+    record = {
+      ...record,
+      project:project.id,
+      supplier:supplier.id,
+      provider:provider.id,
+      status:get("status"),
+      declared_by:declaredBy,
+      description:get("description")
+    };
+  }
+
+  if(existing){
+    const index = data[type].findIndex(item => item.id === existing.id);
+    data[type][index] = record;
+  }else{
+    data[type].push(record);
+  }
+
+  saveData();
+  editing = null;
+  navigate(type);
+}
+
+function proposeParticipation(participantId){
+  const participant = data.suppliers.find(item => item.id === participantId)
+    || data.providers.find(item => item.id === participantId);
+
+  if(!participant) return;
+
+  const openProjects = data.projects.filter(project => project.status === "open");
+
+  if(!openProjects.length){
+    alert("There are no open projects to propose participation in.");
+    return;
+  }
+
+  showForm("participation");
+}
+
+function deleteRecord(type,id){
+  const record = recordById(type,id);
+  if(!record) return;
+
+  if(!confirm(`Delete ${record.id} from this local workspace?`)) return;
+
+  data[type] = data[type].filter(item => item.id !== id);
+  saveData();
+  render();
+}
+
+function renderExport(){
+  return `
+    <section class="panel">
+      <h1>PR / EXPORT</h1>
+      <p>Prepare a JSON record and pull-request description for the Builder-on repository.</p>
+
+      <div class="notice info">
+        This page does not connect to GitHub or publish changes. Export a record, then submit it through a pull request in the repository.
+      </div>
+
+      <div class="form-grid">
+        ${field("Record directory","export_type","projects",[
+          {value:"projects",label:"Projects"},
+          {value:"suppliers",label:"Suppliers"},
+          {value:"providers",label:"Providers"},
+          {value:"participation",label:"Participation"},
+          {value:"relationships",label:"Relationships"}
+        ],true)}
+        <div class="field full">
+          <label>Record</label>
+          <select id="export_record" onchange="prepareExport()"></select>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="primary" onclick="downloadExport()">Download JSON</button>
+        <button onclick="copyPR()">Copy PR description</button>
+        <button onclick="openGitHubPR()">Open GitHub PR page</button>
+        <button onclick="downloadBackup()">Backup all local data</button>
+      </div>
+
+      <h2 style="margin-top:20px">JSON PREVIEW</h2>
+      <pre id="jsonPreview">Select a record to preview.</pre>
+
+      <h2>PR DESCRIPTION</h2>
+      <pre id="prPreview">Select a record to generate a PR description.</pre>
+
+      <div class="form-actions">
+        <button onclick="document.getElementById('importFile').click()">Import JSON backup</button>
+        <input id="importFile" type="file" accept=".json,application/json" class="hidden" onchange="importBackup(event)">
+      </div>
+    </section>
+  `;
+}
+
+document.addEventListener("change",event => {
+  if(event.target.id === "export_type"){
+    populateExportRecords();
+  }
+});
+
+function populateExportRecords(){
+  const type = document.getElementById("export_type")?.value || "projects";
+  const select = document.getElementById("export_record");
+  if(!select) return;
+
+  select.innerHTML = data[type].map(record =>
+    `<option value="${escapeHTML(record.id)}">${escapeHTML(record.id)} · ${escapeHTML(record.name || record.id)}</option>`
+  ).join("");
+
+  prepareExport();
+}
+
+function prepareExport(){
+  const type = document.getElementById("export_type")?.value || "projects";
+  const id = document.getElementById("export_record")?.value;
+  const record = recordById(type,id);
+
+  exportRecord = record ? {type,record} : null;
+
+  document.getElementById("jsonPreview").textContent = record
+    ? JSON.stringify(record,null,2)
+    : "No record selected.";
+
+  if(record){
+    const label = type.slice(0,-1).toUpperCase();
+    document.getElementById("prPreview").textContent =
+`[${label}] ${record.id}
+
+## Summary
+Add or update ${record.id} in the ${type} directory.
+
+## Checklist
+- [ ] Information is accurate to the best of my knowledge.
+- [ ] I am authorized to submit this information.
+- [ ] Public contact details are intentionally provided.
+- [ ] No confidential information is included.
+- [ ] I understand Builder-on's responsibility boundaries.
+
+## Record
+\`\`\`json
+${JSON.stringify(record,null,2)}
+\`\`\``;
+  }else{
+    document.getElementById("prPreview").textContent = "No record selected.";
   }
 }
-function resetChecks(){checks.forEach(c=>c.checked=false);updateCount();}
-checks.forEach(c=>c.addEventListener('change',updateCount));
+
+function downloadText(filename,textContent,mime="application/json"){
+  const blob = new Blob([textContent],{type:mime});
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+  anchor.click();
+  URL.revokeObjectURL(url);
+}
+
+function downloadExport(){
+  if(!exportRecord){
+    alert("Select a record first.");
+    return;
+  }
+
+  const {type,record} = exportRecord;
+  downloadText(`${record.id}.json`,JSON.stringify(record,null,2));
+}
+
+function copyPR(){
+  const textContent = document.getElementById("prPreview")?.textContent || "";
+  if(!textContent || textContent.startsWith("No record")){
+    alert("Select a record first.");
+    return;
+  }
+
+  navigator.clipboard?.writeText(textContent)
+    .then(() => alert("PR description copied."))
+    .catch(() => alert("Clipboard access was unavailable. Select and copy the preview manually."));
+}
+
+function openGitHubPR(){
+  const repo = prompt("Enter your Builder-on GitHub repository URL:","https://github.com/your-user/builder-on");
+  if(!repo) return;
+
+  const clean = repo.replace(/\/+$/,"");
+  window.open(clean + "/compare","_blank","noopener");
+}
+
+function downloadBackup(){
+  downloadText("builder-on-backup.json",JSON.stringify(data,null,2));
+}
+
+function importBackup(event){
+  const file = event.target.files?.[0];
+  if(!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    try{
+      const parsed = JSON.parse(reader.result);
+
+      for(const type of ["projects","suppliers","providers","participation","relationships"]){
+        if(!Array.isArray(parsed[type])) throw new Error(`Missing or invalid ${type} directory.`);
+      }
+
+      if(!confirm("Import will replace all local Builder-on records. Continue?")) return;
+
+      data = parsed;
+      saveData();
+      navigate("home");
+      alert("Backup imported.");
+    }catch(error){
+      alert("Import failed: " + error.message);
+    }
+  };
+
+  reader.readAsText(file);
+}
+
+/* =========================================================
+   OPTIONAL DEMO DATA
+   ========================================================= */
+
+function loadDemoData(){
+  if(data.projects.length || data.suppliers.length || data.providers.length){
+    if(!confirm("Add demo records to the existing local workspace?")) return;
+  }
+
+  if(!recordById("projects","BO-P-0001")){
+    data.projects.push({
+      id:"BO-P-0001",
+      type:"project",
+      name:"Beer Cooler",
+      description:"Design and assemble a compact beer cooling and dispensing unit.",
+      status:"open",
+      category:["manufacturing","cooling"],
+      location:"Netherlands",
+      contact:{email:"project@example.org",website:"https://example.org"},
+      requirements:[
+        "Insulated enclosure",
+        "Cooling system",
+        "Beer dispensing components",
+        "Temperature control",
+        "Assembly and testing"
+      ],
+      created:today(),
+      updated:today()
+    });
+  }
+
+  if(!recordById("suppliers","BO-S-0001")){
+    data.suppliers.push({
+      id:"BO-S-0001",
+      type:"supplier",
+      name:"Example refrigeration supplier",
+      description:"Illustrative supplier of refrigeration equipment.",
+      status:"active",
+      categories:["cooling","components"],
+      location:"Netherlands",
+      contact:{email:"sales@example.org",website:"https://example.org"},
+      capabilities:["Cooling units","Refrigeration components"],
+      created:today(),
+      updated:today()
+    });
+  }
+
+  if(!recordById("providers","BO-V-0001")){
+    data.providers.push({
+      id:"BO-V-0001",
+      type:"provider",
+      name:"Example refrigeration technician",
+      description:"Illustrative installation and maintenance services.",
+      status:"active",
+      categories:["refrigeration","installation"],
+      location:"Netherlands",
+      contact:{email:"service@example.org",website:"https://example.org"},
+      capabilities:["Cooling system installation","System testing","Maintenance"],
+      created:today(),
+      updated:today()
+    });
+  }
+
+  saveData();
+  render();
+}
+
+/* First-run prompt */
+if(data.projects.length === 0 && data.suppliers.length === 0 && data.providers.length === 0){
+  setTimeout(() => {
+    if(confirm("Load illustrative Beer Cooler demo records?")){
+      loadDemoData();
+    }
+  },250);
+}
+
+render();
 </script>
 </body>
 </html>
